@@ -26,7 +26,7 @@ export const councilSessions: CouncilSessionInsert[] = [
     name: "令和8年 2月定例会",
     slug: "r8-2",
     council_url:
-      "https://www.pref.nara.jp/1702.htm",
+      "https://www.pref.nara.lg.jp/n161/p114001.html",
     start_date: "2026-02-20",
     end_date: "2026-03-25",
     is_active: true,
@@ -35,9 +35,9 @@ export const councilSessions: CouncilSessionInsert[] = [
     name: "令和7年 12月定例会",
     slug: "r7-12",
     council_url:
-      "https://www.pref.nara.jp/1702.htm",
+      "https://www.pref.nara.lg.jp/n161/70511.html",
     start_date: "2025-12-01",
-    end_date: "2025-12-20",
+    end_date: "2025-12-15",
     is_active: false,
   },
 ];
@@ -108,69 +108,126 @@ export const committees: CommitteeInsert[] = [
 // タグデータ
 export const tags: TagInsert[] = [
   {
-    label: "観光・文化",
-    description: "観光振興、文化財保護、世界遺産に関する議案",
+    label: "予算・財政",
+    description: "一般会計予算、特別会計予算、補正予算に関する議案",
     featured_priority: 1,
   },
   {
     label: "子育て・教育",
-    description: "子育て支援、教育政策、若者支援に関する議案",
+    description: "子育て支援、教育政策、学校に関する議案",
     featured_priority: 2,
   },
   {
     label: "福祉・医療",
-    description: "福祉、医療、高齢者支援に関する議案",
+    description: "福祉、医療、高齢者支援、児童福祉に関する議案",
     featured_priority: 3,
   },
   {
-    label: "県土整備・防災",
-    description: "道路整備、防災対策、まちづくりに関する議案",
+    label: "観光・文化",
+    description: "観光振興、文化財保護、世界遺産に関する議案",
     featured_priority: 4,
+  },
+  {
+    label: "県土整備・防災",
+    description: "道路整備、防災対策、住宅、環境に関する議案",
+    featured_priority: 5,
+  },
+  {
+    label: "産業・経済",
+    description: "企業誘致、農林業、中小企業支援に関する議案",
+    featured_priority: 6,
   },
 ];
 
 export const bills: BillInsert[] = [
+  // ===== 令和8年2月定例会（議決日: 3月25日）=====
   {
-    name: "奈良県子ども医療費助成条例の一部改正",
-    status: "in_committee",
-    status_note: "福祉医療委員会で審査中",
-    published_at: "2026-02-20T09:00:00+09:00",
+    name: "令和8年度奈良県一般会計予算",
+    status: "approved",
+    status_note: "3月25日 原案可決",
+    published_at: "2026-03-25T09:00:00+09:00",
     publish_status: "published",
     is_featured: true,
     thumbnail_url: "https://placehold.co/600x400",
   },
   {
-    name: "奈良県観光振興条例",
+    name: "奈良県認定こども園の認定の要件に関する条例等の一部を改正する条例",
     status: "approved",
-    status_note: "本会議で可決",
-    published_at: "2025-12-10T10:00:00+09:00",
+    status_note: "3月25日 原案可決",
+    published_at: "2026-03-25T09:00:00+09:00",
     publish_status: "published",
     is_featured: true,
     thumbnail_url: "https://placehold.co/600x400",
   },
   {
-    name: "奈良県県立公園条例の一部改正",
-    status: "rejected",
-    status_note: "本会議で否決",
-    published_at: "2025-12-05T09:00:00+09:00",
-    publish_status: "published",
-    is_featured: false,
-    thumbnail_url: "https://placehold.co/600x400",
-  },
-  {
-    name: "奈良県学校給食費の無償化に関する条例",
+    name: "奈良県文化財保存活用基金条例",
     status: "approved",
-    status_note: "本会議で可決、来年度から実施",
-    published_at: "2025-12-08T09:00:00+09:00",
+    status_note: "3月25日 原案可決",
+    published_at: "2026-03-25T09:00:00+09:00",
+    publish_status: "published",
+    is_featured: true,
+    thumbnail_url: "https://placehold.co/600x400",
+  },
+  {
+    name: "奈良県防災会議等の組織及び運営に関する条例の一部を改正する条例",
+    status: "approved",
+    status_note: "3月25日 原案可決",
+    published_at: "2026-03-25T09:00:00+09:00",
     publish_status: "published",
     is_featured: false,
     thumbnail_url: "https://placehold.co/600x400",
   },
   {
-    name: "奈良県地域防災計画推進条例の一部改正",
-    status: "rejected",
-    status_note: "本会議で否決",
-    published_at: "2025-12-15T10:00:00+09:00",
+    name: "奈良県男女共同参画推進条例の一部を改正する条例",
+    status: "approved",
+    status_note: "3月25日 原案可決",
+    published_at: "2026-03-25T09:00:00+09:00",
+    publish_status: "published",
+    is_featured: false,
+    thumbnail_url: "https://placehold.co/600x400",
+  },
+  {
+    name: "奈良県企業立地及び宿泊施設誘致を促進するための県税の特例に関する条例の一部を改正する条例",
+    status: "approved",
+    status_note: "3月25日 原案可決",
+    published_at: "2026-03-25T09:00:00+09:00",
+    publish_status: "published",
+    is_featured: false,
+    thumbnail_url: "https://placehold.co/600x400",
+  },
+  {
+    name: "奈良県森林環境税条例の一部を改正する条例",
+    status: "approved",
+    status_note: "3月25日 原案可決",
+    published_at: "2026-03-25T09:00:00+09:00",
+    publish_status: "published",
+    is_featured: false,
+    thumbnail_url: "https://placehold.co/600x400",
+  },
+  // ===== 令和7年12月定例会（議決日: 12月15日）=====
+  {
+    name: "奈良県県民くらし相談センター条例",
+    status: "approved",
+    status_note: "12月15日 原案可決",
+    published_at: "2025-12-15T09:00:00+09:00",
+    publish_status: "published",
+    is_featured: true,
+    thumbnail_url: "https://placehold.co/600x400",
+  },
+  {
+    name: "奈良県児童福祉施設の設備及び運営の基準に関する条例の一部を改正する条例",
+    status: "approved",
+    status_note: "12月15日 原案可決",
+    published_at: "2025-12-15T09:00:00+09:00",
+    publish_status: "published",
+    is_featured: false,
+    thumbnail_url: "https://placehold.co/600x400",
+  },
+  {
+    name: "奈良県外国人観光客交流館条例を廃止する条例",
+    status: "approved",
+    status_note: "12月15日 原案可決",
+    published_at: "2025-12-15T09:00:00+09:00",
     publish_status: "published",
     is_featured: false,
     thumbnail_url: "https://placehold.co/600x400",
@@ -183,11 +240,16 @@ export function createBillsTags(
   insertedTags: { id: string; label: string }[]
 ): Omit<BillsTagsInsert, "id" | "created_at">[] {
   const billTagMap: { [billName: string]: string[] } = {
-    "奈良県子ども医療費助成条例の一部改正": ["子育て・教育"],
-    "奈良県観光振興条例": ["観光・文化"],
-    "奈良県県立公園条例の一部改正": ["観光・文化"],
-    "奈良県学校給食費の無償化に関する条例": ["子育て・教育"],
-    "奈良県地域防災計画推進条例の一部改正": ["県土整備・防災"],
+    "令和8年度奈良県一般会計予算": ["予算・財政"],
+    "奈良県認定こども園の認定の要件に関する条例等の一部を改正する条例": ["子育て・教育"],
+    "奈良県文化財保存活用基金条例": ["観光・文化"],
+    "奈良県防災会議等の組織及び運営に関する条例の一部を改正する条例": ["県土整備・防災"],
+    "奈良県男女共同参画推進条例の一部を改正する条例": ["福祉・医療"],
+    "奈良県企業立地及び宿泊施設誘致を促進するための県税の特例に関する条例の一部を改正する条例": ["産業・経済", "観光・文化"],
+    "奈良県森林環境税条例の一部を改正する条例": ["県土整備・防災"],
+    "奈良県県民くらし相談センター条例": ["福祉・医療"],
+    "奈良県児童福祉施設の設備及び運営の基準に関する条例の一部を改正する条例": ["子育て・教育", "福祉・医療"],
+    "奈良県外国人観光客交流館条例を廃止する条例": ["観光・文化"],
   };
 
   const billsTags: Omit<BillsTagsInsert, "id" | "created_at">[] = [];
@@ -215,33 +277,63 @@ const factionStancesData: Omit<
 >[] = [
   {
     type: "for",
-    comment: `子どもの医療費助成の拡充は、子育て世代の経済的負担を軽減する重要な施策です。
+    comment: `令和8年度の一般会計予算は、奈良県の将来を見据えた重要な予算編成です。
 
-奈良県の子育て環境をより良くし、安心して子育てできる地域づくりに貢献すると考えます。`,
+子育て支援、観光振興、防災対策など県民生活に直結する施策に重点配分されており、着実な県政運営が期待できます。`,
   },
   {
     type: "for",
-    comment: `奈良県は世界遺産をはじめとする豊かな観光資源を有しています。
+    comment: `認定こども園の基準見直しは、子育て環境の質の向上に直結する重要な改正です。
 
-観光振興条例により、持続可能な観光まちづくりと地域経済の活性化が期待できます。`,
+保育の質を確保しながら、待機児童の解消と多様な保育ニーズへの対応が進むことを期待します。`,
   },
   {
     type: "for",
-    comment: `県立公園は県民の憩いの場であり、奈良の自然環境を守る重要な拠点です。
+    comment: `奈良県は世界遺産をはじめ貴重な文化財の宝庫です。
 
-この条例改正により、公園の利活用が促進され、地域コミュニティの活性化が期待できます。`,
+文化財保存活用基金の創設により、安定的な財源を確保し、次世代への継承と観光資源としての活用の両立が期待できます。`,
   },
   {
     type: "for",
-    comment: `学校給食の無償化は、子育て支援と教育の充実を同時に実現する重要な政策です。
+    comment: `近年の自然災害の激甚化を踏まえ、防災会議の組織体制強化は喫緊の課題です。
 
-全ての子どもが質の高い食事を平等に受けられることは、健康格差の解消にもつながります。奈良県の地元食材を活用した食育の推進も期待できます。`,
+多様な視点を取り入れた防災体制の構築は、県民の安全・安心に直結します。`,
   },
   {
-    type: "against",
-    comment: `防災対策の強化は重要ですが、現行条例の運用改善で対応できる部分も多いと考えます。
+    type: "for",
+    comment: `男女共同参画の推進は、多様な人材が活躍できる社会の実現に不可欠です。
 
-条例改正よりも先に、現場レベルでの防災訓練の充実や地域防災力の向上に注力すべきです。`,
+時代の変化に対応した条例改正により、奈良県の活力向上につながると考えます。`,
+  },
+  {
+    type: "for",
+    comment: `企業誘致と宿泊施設の整備は、奈良県の経済活性化に欠かせない施策です。
+
+県税の特例措置の見直しにより、より効果的な投資誘引が期待できます。`,
+  },
+  {
+    type: "for",
+    comment: `森林環境の保全は、奈良県の豊かな自然を守るために重要です。
+
+森林環境税の適切な運用により、県土保全と林業振興の両面で効果が期待できます。`,
+  },
+  {
+    type: "for",
+    comment: `県民くらし相談センターの設置は、県民の困りごとにワンストップで対応する重要な施策です。
+
+消費者被害の防止や生活相談の充実により、県民の安心につながります。`,
+  },
+  {
+    type: "for",
+    comment: `児童福祉施設の設備・運営基準の見直しは、子どもたちの安全と健やかな成長を守るための重要な改正です。
+
+国の基準改正に合わせた適切な対応と考えます。`,
+  },
+  {
+    type: "for",
+    comment: `外国人観光客交流館の廃止は、観光施策の見直しの一環として理解できます。
+
+施設の役割を他の観光拠点に集約し、より効率的な観光振興を進めることが重要です。`,
   },
 ];
 
