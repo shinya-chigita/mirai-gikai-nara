@@ -1,0 +1,97 @@
+import "server-only";
+
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Container } from "@/components/layouts/container";
+import { getBillById } from "@/features/bills/server/loaders/get-bill-by-id";
+import { InterviewLandingSection } from "@/features/interview-config/client/components/interview-landing-section";
+import { getInterviewConfig } from "@/features/interview-config/server/loaders/get-interview-config";
+import { getReportReactionsBatch } from "@/features/report-reaction/server/loaders/get-report-reactions";
+import { routes } from "@/lib/routes";
+import { PublicOpinionsList } from "../../client/components/public-opinions-list";
+import { OpinionsBreadcrumb } from "../../shared/components/opinions-breadcrumb";
+import { getInitialPublicReportsByBillId } from "../loaders/get-all-public-reports-by-bill-id";
+
+interface PublicOpinionsPageProps {
+  billId: string;
+}
+
+export async function PublicOpinionsPage({ billId }: PublicOpinionsPageProps) {
+  const [bill, initialData, interviewConfig] = await Promise.all([
+    getBillById(billId),
+    getInitialPublicReportsByBillId(billId),
+    getInterviewConfig(billId),
+  ]);
+
+  if (!bill) {
+    notFound();
+  }
+
+  const billTitle = bill.bill_content?.title || bill.name;
+
+  const reportIds = initialData.reports.map((r) => r.id);
+  const reactionsMap = await getReportReactionsBatch(reportIds);
+  const reactionsRecord: Record<
+    string,
+    { counts: { helpful: number; hmm: number }; userReaction: string | null }
+  > = {};
+  for (const [id, data] of reactionsMap) {
+    reactionsRecord[id] = {
+      counts: data.counts,
+      userReaction: data.userReaction,
+    };
+  }
+
+  return (
+    <div className="min-h-dvh bg-mirai-surface">
+      {/* ヒーロー画像 */}
+      {bill.thumbnail_url && (
+        <div className="relative w-full h-[200px] md:h-[320px]">
+          <Image
+            src={bill.thumbnail_url}
+            alt={billTitle}
+            fill
+            className="object-cover"
+          />
+        </div>
+      )}
+
+      <Container>
+        {/* 法案タイトル（法案詳細へのリンク） */}
+        <div className="py-6">
+          <Link href={routes.billDetail(billId)}>
+            <h1 className="text-2xl font-bold leading-[1.5] text-black hover:underline">
+              {billTitle}
+            </h1>
+          </Link>
+          {bill.name !== billTitle && (
+            <p className="mt-2 text-xs font-medium leading-[1.67] text-mirai-text-muted">
+              {bill.name}
+            </p>
+          )}
+        </div>
+
+        {/* 意見一覧（フィルター付き・スクロールページネーション） */}
+        <PublicOpinionsList
+          billId={billId}
+          initialReports={initialData.reports}
+          initialReactionsRecord={reactionsRecord}
+          stanceCounts={initialData.stanceCounts}
+          initialHasMore={initialData.hasMore}
+        />
+
+        {/* AIインタビューCTAバナー */}
+        {interviewConfig != null && (
+          <div className="my-8">
+            <InterviewLandingSection billId={billId} />
+          </div>
+        )}
+        {/* パンくずリスト */}
+        <div className="pb-8">
+          <OpinionsBreadcrumb billId={billId} />
+        </div>
+      </Container>
+    </div>
+  );
+}

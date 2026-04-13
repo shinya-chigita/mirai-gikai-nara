@@ -1,0 +1,24 @@
+{
+  "name": "みらい議会ー奈良県版",
+  "short_name": "みらい議会ー奈良県版",
+  "description": "奈良県議会で今どんな議案が検討されているか、わかりやすく伝えるプラットフォーム",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F7F4F0",
+  "theme_color": "#8b2252",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/pwa/icon_android_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/pwa/icon_android_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
