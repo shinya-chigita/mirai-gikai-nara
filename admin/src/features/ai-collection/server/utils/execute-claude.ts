@@ -59,6 +59,7 @@ const USAGE_LIMIT_PATTERNS = [
   /rate limit/i,
   /quota exceeded/i,
   /you have exceeded/i,
+  /you(?:'ve|\s+have)\s+hit\s+your\s+limit/i,
   /Claude AI usage limit/i,
   /overloaded/i,
   /Too many requests/i,

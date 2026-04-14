@@ -102,7 +102,7 @@ function computeDiffs(
   }
 
   const currentSummary = detail.contents?.summary ?? "";
-  const newSummary = draft.summary.slice(0, 500);
+  const newSummary = (draft.summary ?? "").slice(0, 500);
   if (currentSummary !== newSummary) {
     diffs.push({
       key: "contents",

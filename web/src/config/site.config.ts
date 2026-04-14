@@ -20,8 +20,7 @@ export const siteConfig = {
   ],
   councilBaseUrl: "https://www.pref.nara.jp/",
   /** 議案・議決結果の一覧ページ */
-  councilBillsDetailUrl:
-    "https://www.pref.nara.jp/1702.htm",
+  councilBillsDetailUrl: "https://www.pref.nara.jp/1702.htm",
   twitterHashtag: "みらい議会奈良県版", // # なし
   externalLinks: {
     report: "", // TODO: 奈良県版の報告フォームURLを設定

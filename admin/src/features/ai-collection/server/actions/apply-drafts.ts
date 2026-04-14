@@ -97,12 +97,13 @@ export async function applyDrafts(
 
       const billId = inserted.id;
 
+      const summaryText = draft.summary ?? "";
       const contentRows = (["normal", "hard"] as const).map((level) => ({
         bill_id: billId,
         difficulty_level: level,
         title: draft.title,
-        summary: draft.summary.slice(0, 500),
-        content: draft.summary,
+        summary: summaryText.slice(0, 500),
+        content: summaryText,
       }));
 
       const { error: contentsError } = await supabase
@@ -165,6 +166,7 @@ export async function applyDrafts(
 
       if (override.updateContents) {
         for (const level of ["normal", "hard"] as const) {
+          const summaryText = draft.summary ?? "";
           const { error: upsertError } = await supabase
             .from("bill_contents")
             .upsert(
@@ -172,8 +174,8 @@ export async function applyDrafts(
                 bill_id: billId,
                 difficulty_level: level,
                 title: draft.title,
-                summary: draft.summary.slice(0, 500),
-                content: draft.summary,
+                summary: summaryText.slice(0, 500),
+                content: summaryText,
               },
               { onConflict: "bill_id,difficulty_level" }
             );
