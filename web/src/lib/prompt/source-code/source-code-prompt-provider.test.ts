@@ -141,4 +141,43 @@ describe("SourceCodePromptProvider", () => {
 
     expect(result.content).not.toContain("## 会派の立場");
   });
+
+  it("bill-chat-system-normal に proceedingStatementsSection を渡すとプロンプトに含まれる", async () => {
+    const result = await provider.getPrompt("bill-chat-system-normal", {
+      billName: "テスト法案",
+      billTitle: "テスト法案のタイトル",
+      billSummary: "テスト法案の要約",
+      billContent: "テスト法案の詳細内容",
+      proceedingStatementsSection:
+        "## 議会での発言（会議録抜粋）\n- 山田（賛成派、2026-02-15）: 「発言X」",
+    });
+
+    expect(result.content).toContain("## 議会での発言（会議録抜粋）");
+    expect(result.content).toContain("山田（賛成派、2026-02-15）: 「発言X」");
+  });
+
+  it("bill-chat-system-hard に proceedingStatementsSection を渡すとプロンプトに含まれる", async () => {
+    const result = await provider.getPrompt("bill-chat-system-hard", {
+      billName: "テスト法案",
+      billTitle: "テスト法案のタイトル",
+      billSummary: "テスト法案の要約",
+      billContent: "テスト法案の詳細内容",
+      proceedingStatementsSection:
+        "## 議会での発言（会議録抜粋）\n- 田中（反対派、2026-02-15）: 「発言Y」",
+    });
+
+    expect(result.content).toContain("## 議会での発言（会議録抜粋）");
+    expect(result.content).toContain("田中（反対派、2026-02-15）: 「発言Y」");
+  });
+
+  it("proceedingStatementsSection 未指定でも正常動作する（後方互換）", async () => {
+    const result = await provider.getPrompt("bill-chat-system-normal", {
+      billName: "テスト法案",
+      billTitle: "テスト法案のタイトル",
+      billSummary: "テスト法案の要約",
+      billContent: "テスト法案の詳細内容",
+    });
+
+    expect(result.content).not.toContain("## 議会での発言");
+  });
 });

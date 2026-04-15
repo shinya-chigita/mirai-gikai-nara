@@ -9,6 +9,7 @@ import {
 } from "ai";
 import { z } from "zod";
 import type { DifficultyLevelEnum } from "@/features/bill-difficulty/shared/types";
+import { getStatementsByBillId } from "@/features/bills/server/loaders/get-statements-by-bill-id";
 import type { BillWithContent } from "@/features/bills/shared/types";
 import {
   SUGGEST_INTERVIEW_TOOL_NAME,
@@ -16,6 +17,7 @@ import {
 } from "@/features/chat/shared/constants";
 import { ChatError, ChatErrorCode } from "@/features/chat/shared/types/errors";
 import { formatFactionStancesForPrompt } from "@/features/chat/shared/utils/format-faction-stances";
+import { formatProceedingStatementsForPrompt } from "@/features/chat/shared/utils/format-proceeding-statements";
 import { findPublicInterviewConfigByBillId } from "@/features/interview-config/server/repositories/interview-config-repository";
 import { env } from "@/lib/env";
 import {
@@ -190,18 +192,26 @@ async function buildPrompt(
       : `bill-chat-system-${context.difficultyLevel}`;
 
   // Prepare prompt variables
-  const variables: Record<string, string> =
-    context.pageContext?.type === "home"
-      ? { billSummary: JSON.stringify(context.pageContext.bills ?? "") }
-      : {
-          billName: context.billContext?.name ?? "",
-          billTitle: context.billContext?.bill_content?.title ?? "",
-          billSummary: context.billContext?.bill_content?.summary ?? "",
-          billContent: context.billContext?.bill_content?.content ?? "",
-          factionStancesSection: formatFactionStancesForPrompt(
-            context.billContext?.faction_stances
-          ),
-        };
+  let variables: Record<string, string>;
+  if (context.pageContext?.type === "home") {
+    variables = {
+      billSummary: JSON.stringify(context.pageContext.bills ?? ""),
+    };
+  } else {
+    const billId = context.billContext?.id;
+    const statements = billId ? await getStatementsByBillId(billId) : [];
+    variables = {
+      billName: context.billContext?.name ?? "",
+      billTitle: context.billContext?.bill_content?.title ?? "",
+      billSummary: context.billContext?.bill_content?.summary ?? "",
+      billContent: context.billContext?.bill_content?.content ?? "",
+      factionStancesSection: formatFactionStancesForPrompt(
+        context.billContext?.faction_stances
+      ),
+      proceedingStatementsSection:
+        formatProceedingStatementsForPrompt(statements),
+    };
+  }
 
   // Fetch prompt from Langfuse
   try {
