@@ -104,4 +104,41 @@ describe("SourceCodePromptProvider", () => {
 
     expect(result.content).toContain("みらい議会");
   });
+
+  it("bill-chat-system-normal に factionStancesSection を渡すとプロンプトに含まれる", async () => {
+    const result = await provider.getPrompt("bill-chat-system-normal", {
+      billName: "テスト法案",
+      billTitle: "テスト法案のタイトル",
+      billSummary: "テスト法案の要約",
+      billContent: "テスト法案の詳細内容",
+      factionStancesSection: "## 会派の立場\n- A会派: 賛成 — 「コメントA」",
+    });
+
+    expect(result.content).toContain("## 会派の立場");
+    expect(result.content).toContain("A会派: 賛成 — 「コメントA」");
+  });
+
+  it("bill-chat-system-hard に factionStancesSection を渡すとプロンプトに含まれる", async () => {
+    const result = await provider.getPrompt("bill-chat-system-hard", {
+      billName: "テスト法案",
+      billTitle: "テスト法案のタイトル",
+      billSummary: "テスト法案の要約",
+      billContent: "テスト法案の詳細内容",
+      factionStancesSection: "## 会派の立場\n- B会派: 反対 — 「コメントB」",
+    });
+
+    expect(result.content).toContain("## 会派の立場");
+    expect(result.content).toContain("B会派: 反対 — 「コメントB」");
+  });
+
+  it("factionStancesSection 未指定でも正常動作する（後方互換）", async () => {
+    const result = await provider.getPrompt("bill-chat-system-normal", {
+      billName: "テスト法案",
+      billTitle: "テスト法案のタイトル",
+      billSummary: "テスト法案の要約",
+      billContent: "テスト法案の詳細内容",
+    });
+
+    expect(result.content).not.toContain("## 会派の立場");
+  });
 });

@@ -15,6 +15,7 @@ import {
   SUGGEST_INTERVIEW_TOOL_TYPE,
 } from "@/features/chat/shared/constants";
 import { ChatError, ChatErrorCode } from "@/features/chat/shared/types/errors";
+import { formatFactionStancesForPrompt } from "@/features/chat/shared/utils/format-faction-stances";
 import { findPublicInterviewConfigByBillId } from "@/features/interview-config/server/repositories/interview-config-repository";
 import { env } from "@/lib/env";
 import {
@@ -197,6 +198,9 @@ async function buildPrompt(
           billTitle: context.billContext?.bill_content?.title ?? "",
           billSummary: context.billContext?.bill_content?.summary ?? "",
           billContent: context.billContext?.bill_content?.content ?? "",
+          factionStancesSection: formatFactionStancesForPrompt(
+            context.billContext?.faction_stances
+          ),
         };
 
   // Fetch prompt from Langfuse

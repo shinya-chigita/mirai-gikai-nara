@@ -29,4 +29,23 @@ describe("buildBillChatSystemHardPrompt", () => {
     expect(result).toContain("みらい議会");
     expect(result).toContain("チームみらい");
   });
+
+  it("factionStancesSection を渡すとプロンプトに含まれる", () => {
+    const result = buildBillChatSystemHardPrompt(
+      "a",
+      "b",
+      "c",
+      "d",
+      "## 会派の立場\n- Y会派: 反対 — 「ng」"
+    );
+
+    expect(result).toContain("## 会派の立場");
+    expect(result).toContain("Y会派: 反対 — 「ng」");
+  });
+
+  it("factionStancesSection が空文字の場合はセクションが含まれない", () => {
+    const result = buildBillChatSystemHardPrompt("a", "b", "c", "d", "");
+
+    expect(result).not.toContain("## 会派の立場");
+  });
 });
