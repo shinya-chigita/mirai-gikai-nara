@@ -47,4 +47,24 @@ describe("buildBillChatSystemNormalPrompt", () => {
 
     expect(result).not.toContain("## 会派の立場");
   });
+
+  it("proceedingStatementsSection を渡すとプロンプトに含まれる", () => {
+    const result = buildBillChatSystemNormalPrompt(
+      "a",
+      "b",
+      "c",
+      "d",
+      "",
+      "## 議会での発言（会議録抜粋）\n- 山田（自由民主党、2026-02-15）: 「発言」"
+    );
+
+    expect(result).toContain("## 議会での発言（会議録抜粋）");
+    expect(result).toContain("山田（自由民主党、2026-02-15）: 「発言」");
+  });
+
+  it("proceedingStatementsSection が空文字の場合はセクションが含まれない", () => {
+    const result = buildBillChatSystemNormalPrompt("a", "b", "c", "d", "", "");
+
+    expect(result).not.toContain("## 議会での発言");
+  });
 });

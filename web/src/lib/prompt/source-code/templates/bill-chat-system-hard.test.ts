@@ -48,4 +48,24 @@ describe("buildBillChatSystemHardPrompt", () => {
 
     expect(result).not.toContain("## 会派の立場");
   });
+
+  it("proceedingStatementsSection を渡すとプロンプトに含まれる", () => {
+    const result = buildBillChatSystemHardPrompt(
+      "a",
+      "b",
+      "c",
+      "d",
+      "",
+      "## 議会での発言（会議録抜粋）\n- 田中（反対派、2026-02-15）: 「懸念点」"
+    );
+
+    expect(result).toContain("## 議会での発言（会議録抜粋）");
+    expect(result).toContain("田中（反対派、2026-02-15）: 「懸念点」");
+  });
+
+  it("proceedingStatementsSection が空文字の場合はセクションが含まれない", () => {
+    const result = buildBillChatSystemHardPrompt("a", "b", "c", "d", "", "");
+
+    expect(result).not.toContain("## 議会での発言");
+  });
 });
