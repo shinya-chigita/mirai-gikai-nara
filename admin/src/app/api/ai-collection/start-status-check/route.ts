@@ -105,6 +105,7 @@ async function runStatusCheckInBackground(
       billNumber: b.billNumber ?? null,
       title: b.title,
       summary: summaryMap.get(b.billNumber ?? "") ?? "",
+      content: null,
       status: b.status as DraftBill["status"],
       statusNote: b.statusNote ?? null,
       submitter: null,

@@ -109,6 +109,7 @@ async function runClaudeInBackground(
       billNumber: b.billNumber ?? null,
       title: b.title,
       summary: b.summary,
+      content: (b as { content?: string | null }).content ?? null,
       status: b.status as DraftBill["status"],
       statusNote: b.statusNote ?? null,
       submitter: b.submitter ?? null,

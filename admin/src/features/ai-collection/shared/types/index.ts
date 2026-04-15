@@ -37,6 +37,7 @@ export type DraftBill = {
   billNumber: string | null;
   title: string;
   summary: string;
+  content: string | null;
   status:
     | "submitted"
     | "in_committee"

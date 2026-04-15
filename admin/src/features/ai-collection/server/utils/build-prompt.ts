@@ -18,17 +18,21 @@ ${existingSection}
 - ${siteConfig.councilBillsDetailUrl} （${siteConfig.councilName}）
 
 収集情報:
-1. 議案一覧（議案番号・議案名・提出者・審議ステータス・概要）
+1. 議案一覧（議案番号・議案名・提出者・審議ステータス・概要・本文）
+   - **summary**: 議案の要約を 150〜300 字で記述
+   - **content**: 議案の本文を 500〜1500 字で記述。背景・目的・主な内容（金額・対象範囲・開始時期等）・期待される効果・注意点を含むマークダウン形式
+   - 詳細情報は議案関連の PDF（議案本体、提案理由説明資料、委員会審査資料等）を WebFetch で参照してください
 2. 会派見解（${siteConfig.councilFactionExamples}）
    - 議決結果を掲載したPDF（「議決結果」「採決結果」等のリンク）がある場合は優先的に参照してください
    - PDFは表形式で会派ごとの賛否が記載されています
    - 列名が空白の会派列がある場合は、最も議席数の多い会派として扱ってください
    - 無所属議員の情報は収集不要です
+   - **comment**: 各会派が賛成討論・反対討論・意見表明を行っている場合は、その要旨を 100〜400 字で記述。公式資料に記載がない場合は null
 
 調査完了後、以下のJSON形式のデータを Writeツールを使って ${outputFilePath} に書き込んでください:
 {
-  "bills": [{"billNumber": null, "title": "議案名", "summary": "概要", "status": "submitted", "statusNote": null, "submitter": null, "sourceUrls": []}],
-  "factionStances": [{"billTitle": "議案名", "factionName": "会派名", "stanceType": "for", "comment": null, "sourceUrls": []}],
+  "bills": [{"billNumber": null, "title": "議案名", "summary": "150-300字の要約", "content": "500-1500字の本文(Markdown可)", "status": "submitted", "statusNote": null, "submitter": null, "sourceUrls": []}],
+  "factionStances": [{"billTitle": "議案名", "factionName": "会派名", "stanceType": "for", "comment": "100-400字の討論要旨", "sourceUrls": []}],
   "sources": []
 }
 

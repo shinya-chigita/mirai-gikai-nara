@@ -113,6 +113,7 @@ async function runClaudeInBackground(
       billNumber: b.billNumber ?? null,
       title: b.title,
       summary: b.summary,
+      content: (b as { content?: string | null }).content ?? null,
       status: b.status as DraftBill["status"],
       statusNote: b.statusNote ?? null,
       submitter: b.submitter ?? null,
@@ -171,6 +172,7 @@ type RawCollectionResult = {
     billNumber?: string | null;
     title: string;
     summary: string;
+    content?: string | null;
     status: string;
     statusNote?: string | null;
     submitter?: string | null;
@@ -209,6 +211,7 @@ async function runOpenAiInBackground(
       billNumber: b.billNumber ?? null,
       title: b.title,
       summary: b.summary,
+      content: (b as { content?: string | null }).content ?? null,
       status: b.status as DraftBill["status"],
       statusNote: b.statusNote ?? null,
       submitter: b.submitter ?? null,
