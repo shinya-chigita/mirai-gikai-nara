@@ -9,10 +9,12 @@ import { BillDetailClient } from "../../../client/components/bill-detail/bill-de
 import { BillDisclaimer } from "../../../client/components/bill-detail/bill-disclaimer";
 import { BillStatusProgress } from "../../../client/components/bill-detail/bill-status-progress";
 import { FactionStanceCard } from "../../../client/components/bill-detail/faction-stance-card";
+import { getStatementsByBillId } from "../../loaders/get-statements-by-bill-id";
 import type { BillWithContent } from "../../../shared/types";
 import { BillShareButtons } from "../share/bill-share-buttons";
 import { BillContent } from "./bill-content";
 import { BillDetailHeader } from "./bill-detail-header";
+import { BillProceedingStatements } from "./bill-proceeding-statements";
 
 interface BillDetailLayoutProps {
   bill: BillWithContent;
@@ -27,9 +29,10 @@ export async function BillDetailLayout({
     bill.status === "preparing" ||
     (bill.faction_stances && bill.faction_stances.length > 0);
 
-  const [interviewConfig, publicReportsResult] = await Promise.all([
+  const [interviewConfig, publicReportsResult, statements] = await Promise.all([
     getInterviewConfig(bill.id),
     getPublicReportsByBillId(bill.id),
+    getStatementsByBillId(bill.id),
   ]);
 
   return (
@@ -84,6 +87,11 @@ export async function BillDetailLayout({
               stances={bill.faction_stances ?? []}
               billStatus={bill.status}
             />
+          </div>
+        )}
+        {statements.length > 0 && (
+          <div className="my-8">
+            <BillProceedingStatements statements={statements} />
           </div>
         )}
         {/* シェアボタン */}

@@ -314,6 +314,53 @@ export type Database = {
         }
         Relationships: []
       }
+      council_proceedings: {
+        Row: {
+          council_session_id: string | null
+          created_at: string
+          full_text: string | null
+          id: string
+          meeting_date: string | null
+          meeting_type: string
+          source_url: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          council_session_id?: string | null
+          created_at?: string
+          full_text?: string | null
+          id?: string
+          meeting_date?: string | null
+          meeting_type: string
+          source_url?: string | null
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          council_session_id?: string | null
+          created_at?: string
+          full_text?: string | null
+          id?: string
+          meeting_date?: string | null
+          meeting_type?: string
+          source_url?: string | null
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "council_proceedings_council_session_id_fkey"
+            columns: ["council_session_id"]
+            isOneToOne: false
+            referencedRelation: "council_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       council_sessions: {
         Row: {
           council_url: string | null
@@ -769,6 +816,64 @@ export type Database = {
             columns: ["bill_id"]
             isOneToOne: false
             referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proceeding_statements: {
+        Row: {
+          bill_id: string | null
+          created_at: string
+          faction_id: string | null
+          id: string
+          order_num: number
+          proceeding_id: string
+          role: string | null
+          speaker_name: string
+          text: string
+        }
+        Insert: {
+          bill_id?: string | null
+          created_at?: string
+          faction_id?: string | null
+          id?: string
+          order_num?: number
+          proceeding_id: string
+          role?: string | null
+          speaker_name: string
+          text: string
+        }
+        Update: {
+          bill_id?: string | null
+          created_at?: string
+          faction_id?: string | null
+          id?: string
+          order_num?: number
+          proceeding_id?: string
+          role?: string | null
+          speaker_name?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proceeding_statements_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proceeding_statements_faction_id_fkey"
+            columns: ["faction_id"]
+            isOneToOne: false
+            referencedRelation: "factions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proceeding_statements_proceeding_id_fkey"
+            columns: ["proceeding_id"]
+            isOneToOne: false
+            referencedRelation: "council_proceedings"
             referencedColumns: ["id"]
           },
         ]
