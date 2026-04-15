@@ -21,6 +21,8 @@ export const routes = {
   experts: () => "/experts" as const,
   aiSettings: () => "/ai-settings" as const,
   interviews: () => "/interviews" as const,
+  topics: () => "/topics" as const,
+  topicNew: () => "/topics/new" as const,
 
   // ── 議案配下 ──────────────────────────────────────
   billEdit: (billId: string) => `/bills/${billId}/edit` as const,
@@ -49,4 +51,7 @@ export const routes = {
     versionId: string
   ) =>
     `/bills/${billId}/interview/${configId}/topic-analysis/${versionId}` as const,
+
+  // ── トピック型インタビュー配下 ─────────────────────
+  topicEdit: (configId: string) => `/topics/${configId}/edit` as const,
 } as const;
