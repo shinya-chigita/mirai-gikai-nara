@@ -510,7 +510,7 @@ export type Database = {
       }
       interview_configs: {
         Row: {
-          bill_id: string
+          bill_id: string | null
           chat_model: string | null
           created_at: string
           estimated_duration: number | null
@@ -518,12 +518,15 @@ export type Database = {
           knowledge_source: string | null
           mode: Database["public"]["Enums"]["interview_mode_enum"]
           name: string
+          scope_type: Database["public"]["Enums"]["interview_scope_enum"]
           status: Database["public"]["Enums"]["interview_config_status_enum"]
           themes: string[] | null
+          topic_description: string | null
+          topic_title: string | null
           updated_at: string
         }
         Insert: {
-          bill_id: string
+          bill_id?: string | null
           chat_model?: string | null
           created_at?: string
           estimated_duration?: number | null
@@ -531,12 +534,15 @@ export type Database = {
           knowledge_source?: string | null
           mode?: Database["public"]["Enums"]["interview_mode_enum"]
           name: string
+          scope_type?: Database["public"]["Enums"]["interview_scope_enum"]
           status?: Database["public"]["Enums"]["interview_config_status_enum"]
           themes?: string[] | null
+          topic_description?: string | null
+          topic_title?: string | null
           updated_at?: string
         }
         Update: {
-          bill_id?: string
+          bill_id?: string | null
           chat_model?: string | null
           created_at?: string
           estimated_duration?: number | null
@@ -544,8 +550,11 @@ export type Database = {
           knowledge_source?: string | null
           mode?: Database["public"]["Enums"]["interview_mode_enum"]
           name?: string
+          scope_type?: Database["public"]["Enums"]["interview_scope_enum"]
           status?: Database["public"]["Enums"]["interview_config_status_enum"]
           themes?: string[] | null
+          topic_description?: string | null
+          topic_title?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1271,13 +1280,14 @@ export type Database = {
         | "misunderstood"
         | "too_many_questions"
         | "other"
-      interview_mode_enum: "loop" | "bulk"
+      interview_mode_enum: "loop" | "bulk" | "discover"
       interview_report_role_enum:
         | "subject_expert"
         | "work_related"
         | "daily_life_affected"
         | "general_citizen"
       interview_role_enum: "assistant" | "user"
+      interview_scope_enum: "bill" | "topic"
       moderation_status_enum: "ok" | "warning" | "ng"
       stance_type_enum:
         | "for"
@@ -1439,7 +1449,7 @@ export const Constants = {
         "too_many_questions",
         "other",
       ],
-      interview_mode_enum: ["loop", "bulk"],
+      interview_mode_enum: ["loop", "bulk", "discover"],
       interview_report_role_enum: [
         "subject_expert",
         "work_related",
@@ -1447,6 +1457,7 @@ export const Constants = {
         "general_citizen",
       ],
       interview_role_enum: ["assistant", "user"],
+      interview_scope_enum: ["bill", "topic"],
       moderation_status_enum: ["ok", "warning", "ng"],
       stance_type_enum: [
         "for",

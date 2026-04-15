@@ -24,7 +24,7 @@ export const interviewConfigSchema = z.object({
     .min(1, "設定名は必須です")
     .max(100, "設定名は100文字以内で入力してください"),
   status: z.enum(["public", "closed"]),
-  mode: z.enum(["loop", "bulk"]),
+  mode: z.enum(["loop", "bulk", "discover"]),
   themes: z.array(z.string().min(1)).optional(),
   knowledge_source: z.string().optional(),
   chat_model: z

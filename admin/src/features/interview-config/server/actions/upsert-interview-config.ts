@@ -85,11 +85,12 @@ export async function updateInterviewConfig(
     // バリデーション
     const validatedData = interviewConfigSchema.parse(input);
 
-    // 公開設定の場合、他の公開設定を非公開にする
+    // 公開設定の場合、同じ議案の他の公開設定を非公開にする（bill scope のみ）
     if (validatedData.status === "public") {
-      // まず現在の設定のbill_idを取得
       const currentConfig = await findInterviewConfigBillId(configId);
-      await closeOtherPublicConfigs(currentConfig.bill_id, configId);
+      if (currentConfig.bill_id) {
+        await closeOtherPublicConfigs(currentConfig.bill_id, configId);
+      }
     }
 
     // 更新
@@ -143,13 +144,15 @@ export async function duplicateInterviewConfig(
     const originalQuestions = await findInterviewQuestionsByConfigId(configId);
 
     // 新しい設定を作成（ステータスは非公開で複製）
+    // TODO(Phase 2): topic scope 複製では scope_type / topic_title / topic_description の
+    // 引き継ぎが必要。現状 bill scope のみ対応のため、topic config 複製時は CHECK 制約違反で失敗する。
     let newConfig: { id: string };
     try {
       newConfig = await createInterviewConfigRecord({
         bill_id: originalConfig.bill_id,
         name: `${originalConfig.name}（コピー）`,
         status: "closed" as const,
-        mode: originalConfig.mode as "loop" | "bulk",
+        mode: originalConfig.mode,
         themes: originalConfig.themes,
         knowledge_source: originalConfig.knowledge_source,
         chat_model: originalConfig.chat_model,

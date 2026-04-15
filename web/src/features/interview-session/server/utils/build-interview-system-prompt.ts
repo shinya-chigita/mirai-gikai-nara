@@ -35,7 +35,8 @@ export function buildInterviewSystemPrompt({
 }): string {
   // DBの設定からモードを取得
   const mode = interviewConfig?.mode ?? "loop";
-  const logic = modeLogicMap[mode] ?? bulkModeLogic;
+  const logic =
+    modeLogicMap[mode as keyof typeof modeLogicMap] ?? bulkModeLogic;
 
   return logic.buildSystemPrompt({
     bill,

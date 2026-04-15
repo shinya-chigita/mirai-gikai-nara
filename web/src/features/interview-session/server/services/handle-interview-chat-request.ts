@@ -132,7 +132,8 @@ export async function handleInterviewChatRequest({
 
   // モードに応じたロジックを取得（DBの設定を使用）
   const mode = interviewConfig.mode;
-  const logic = modeLogicMap[mode] ?? bulkModeLogic;
+  const logic =
+    modeLogicMap[mode as keyof typeof modeLogicMap] ?? bulkModeLogic;
 
   // DBから最新を含む全メッセージを取得（テスト時はdeps経由で認証をバイパス）
   const getMessagesFn = deps?.getMessages ?? getInterviewMessages;
