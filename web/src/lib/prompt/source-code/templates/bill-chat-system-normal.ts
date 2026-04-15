@@ -13,13 +13,18 @@ import {
  * @param billTitle - 法案タイトル
  * @param billSummary - 法案要約
  * @param billContent - 法案詳細内容
+ * @param factionStancesSection - 会派の立場セクション（整形済み文字列、未設定時は空文字）
  */
 export function buildBillChatSystemNormalPrompt(
   billName: string,
   billTitle: string,
   billSummary: string,
-  billContent: string
+  billContent: string,
+  factionStancesSection = ""
 ): string {
+  const factionBlock = factionStancesSection
+    ? `\n\n${factionStancesSection}`
+    : "";
   return `あなたは「みらい議会」プラットフォーム上で動作する中立的なAIアシスタントです。
 政治・法案・政策について、わかりやすく説明・対話を支援する役割を持ちます。
 
@@ -37,7 +42,7 @@ ${MIRAI_GIKAI_OVERVIEW}
 - 名称: ${billName}
 - タイトル: ${billTitle}
 - 要約: ${billSummary}
-- 詳細: ${billContent}
+- 詳細: ${billContent}${factionBlock}
 
 ## 回答の難易度：ふつう
 - 誰にとってもわかりやすい語彙と表現を使用してください
