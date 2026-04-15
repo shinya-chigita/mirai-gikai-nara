@@ -3,7 +3,9 @@ import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
 import type { InterviewConfig, InterviewQuestion } from "../../shared/types";
 
-export type InterviewConfigWithBill = InterviewConfig & {
+// bill との !inner join によって bill scope のレコードのみが返るため、bill_id は非NULLに narrow する
+export type InterviewConfigWithBill = Omit<InterviewConfig, "bill_id"> & {
+  bill_id: string;
   bill: { id: string; name: string };
 };
 
@@ -62,7 +64,7 @@ export async function findInterviewConfigById(
 
 export async function findInterviewConfigBillId(
   configId: string
-): Promise<{ bill_id: string }> {
+): Promise<{ bill_id: string | null }> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("interview_configs")
@@ -113,14 +115,17 @@ export async function closeOtherPublicConfigs(
 }
 
 export async function createInterviewConfigRecord(params: {
-  bill_id: string;
+  bill_id: string | null;
   name: string;
   status: "public" | "closed";
-  mode: "loop" | "bulk";
+  mode: "loop" | "bulk" | "discover";
   themes: string[] | null;
   knowledge_source: string | null;
   chat_model: string | null;
   estimated_duration: number | null;
+  scope_type?: "bill" | "topic";
+  topic_title?: string | null;
+  topic_description?: string | null;
 }): Promise<{ id: string }> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
@@ -141,7 +146,7 @@ export async function updateInterviewConfigRecord(
   params: {
     name: string;
     status: "public" | "closed";
-    mode: "loop" | "bulk";
+    mode: "loop" | "bulk" | "discover";
     themes: string[] | null;
     knowledge_source: string | null;
     chat_model: string | null;

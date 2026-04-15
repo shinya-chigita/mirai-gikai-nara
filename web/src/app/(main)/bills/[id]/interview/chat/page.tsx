@@ -49,7 +49,9 @@ export default async function InterviewChatPage({
         billTitle={bill.bill_content?.title ?? bill.name}
         sessionId={session.id}
         initialMessages={messages}
-        mode={interviewConfig.mode}
+        mode={
+          interviewConfig.mode === "discover" ? "loop" : interviewConfig.mode
+        }
         totalQuestions={questions.length}
         estimatedDuration={interviewConfig.estimated_duration}
         sessionStartedAt={session.started_at}
