@@ -11,6 +11,7 @@ import { PreviousSessionSection } from "@/features/bills/server/components/previ
 import { loadHomeData } from "@/features/bills/server/loaders/load-home-data";
 import type { BillWithContent } from "@/features/bills/shared/types";
 import { HomeChatClient } from "@/features/chat/client/components/home-chat-client";
+import { TopicInterviewSection } from "@/features/topic-interview-session/server/components/topic-interview-section";
 import { siteConfig } from "@/config/site.config";
 import { getCurrentCouncilSession } from "@/features/council-sessions/server/loaders/get-current-council-session";
 import { CurrentCouncilSession } from "@/features/council-sessions/client/components/current-council-session";
@@ -50,6 +51,9 @@ export default async function Home() {
           <main className="flex flex-col gap-16">
             {/* 注目の議案セクション */}
             <FeaturedBillSection bills={featuredBills} />
+
+            {/* トピック型AIインタビュー セクション */}
+            <TopicInterviewSection />
 
             {/* タグ別議案一覧セクション */}
             <BillsByTagSection
