@@ -22,6 +22,10 @@ export const routes = {
     `/bills/${billId}/interview/disclosure` as const,
   interviewChat: (billId: string) => `/bills/${billId}/interview/chat` as const,
 
+  // ── トピック型インタビュー ────────────────────────
+  topicInterview: (configId: string) => `/topics/${configId}` as const,
+  topicInterviewChat: (configId: string) => `/topics/${configId}/chat` as const,
+
   // ── プレビュー（token 付き） ──────────────────────
   previewBillDetail: (billId: string, token: string) =>
     `/preview/bills/${billId}?token=${encodeURIComponent(token)}` as const,
