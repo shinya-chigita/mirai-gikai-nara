@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 import { getPublicTopicConfigById } from "@/features/topic-interview-session/server/loaders/get-public-topic-config";
 import { initializeTopicSession } from "@/features/topic-interview-session/server/loaders/initialize-topic-session";
 import { TopicChatClient } from "@/features/topic-interview-session/client/components/topic-chat-client";
+import { TopicSessionErrorView } from "@/features/topic-interview-session/client/components/topic-session-error-view";
 
 interface Props {
   params: Promise<{ configId: string }>;
@@ -17,20 +18,25 @@ export default async function TopicChatPage({ params }: Props) {
     notFound();
   }
 
-  const { session, messages } = await initializeTopicSession(configId);
+  try {
+    const { session, messages } = await initializeTopicSession(configId);
 
-  return (
-    <div className="h-[calc(100vh-4rem)]">
-      <TopicChatClient
-        topicConfigId={configId}
-        sessionId={session.id}
-        topicTitle={config.topic_title ?? ""}
-        initialMessages={messages.map((m) => ({
-          id: m.id,
-          role: m.role,
-          content: m.content,
-        }))}
-      />
-    </div>
-  );
+    return (
+      <div className="h-[calc(100vh-4rem)]">
+        <TopicChatClient
+          topicConfigId={configId}
+          sessionId={session.id}
+          topicTitle={config.topic_title ?? ""}
+          initialMessages={messages.map((m) => ({
+            id: m.id,
+            role: m.role,
+            content: m.content,
+          }))}
+        />
+      </div>
+    );
+  } catch (error) {
+    console.error("Failed to initialize topic session:", error);
+    return <TopicSessionErrorView configId={configId} />;
+  }
 }
