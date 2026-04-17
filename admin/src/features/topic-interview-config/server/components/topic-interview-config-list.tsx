@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Plus } from "lucide-react";
+import { MessageCircle, Pencil, Plus } from "lucide-react";
 import { routes } from "@/lib/routes";
 import type { TopicInterviewConfigRow } from "../../shared/types";
 
@@ -78,12 +78,20 @@ export function TopicInterviewConfigList({ configs }: Props) {
                     {new Date(config.created_at).toLocaleDateString("ja-JP")}
                   </TableCell>
                   <TableCell>
-                    <Button asChild variant="ghost" size="sm">
-                      <Link href={routes.topicEdit(config.id) as Route}>
-                        <Pencil className="h-4 w-4 mr-1" />
-                        編集
-                      </Link>
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button asChild variant="ghost" size="sm">
+                        <Link href={routes.topicEdit(config.id) as Route}>
+                          <Pencil className="h-4 w-4 mr-1" />
+                          編集
+                        </Link>
+                      </Button>
+                      <Button asChild variant="ghost" size="sm">
+                        <Link href={routes.topicSessions(config.id) as Route}>
+                          <MessageCircle className="h-4 w-4 mr-1" />
+                          ログ
+                        </Link>
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
