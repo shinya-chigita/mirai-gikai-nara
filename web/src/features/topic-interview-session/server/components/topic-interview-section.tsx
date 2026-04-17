@@ -18,10 +18,10 @@ export async function TopicInterviewSection() {
     <section className="flex flex-col gap-6">
       <div className="flex flex-col gap-1.5">
         <h2 className="text-[22px] font-bold text-mirai-text leading-[1.48]">
-          AIインタビューで議案を探す
+          AIインタビューに参加する
         </h2>
         <p className="text-xs font-medium text-mirai-text-secondary leading-[1.67]">
-          あなたの関心をもとにAIが関連する議案を紹介します
+          奈良県議会で今どんな議論がされているか、AIがご紹介しながらあなたのご意見をうかがいます
         </p>
       </div>
 
