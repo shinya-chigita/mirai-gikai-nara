@@ -4,7 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Send } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/lib/routes";
 
@@ -21,7 +21,6 @@ interface TopicChatClientProps {
   initialMessages: InitialMessage[];
 }
 
-/** テキスト中の `[議案ID:xxx]` を議案詳細へのリンクに置換するノードを生成する */
 function renderWithBillLinks(text: string): React.ReactNode {
   const regex = /\[議案ID:([a-zA-Z0-9-]+)\]/g;
   const nodes: React.ReactNode[] = [];
@@ -57,8 +56,6 @@ export function TopicChatClient({
   topicTitle,
   initialMessages,
 }: TopicChatClientProps) {
-  // topicConfigId / sessionId はトランスポートの body に載せ、
-  // useChat が管理する messages（履歴込み）とマージしてサーバーに送信する。
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
@@ -79,6 +76,13 @@ export function TopicChatClient({
 
   const [input, setInput] = useState("");
   const isLoading = status === "streaming" || status === "submitted";
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (messages.length > 0 || status === "streaming") {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages.length, status]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,11 +95,11 @@ export function TopicChatClient({
   const showIntro = messages.length === 0;
 
   return (
-    <div className="flex flex-col h-full max-w-2xl mx-auto">
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+    <div className="fixed inset-0 top-[5.5rem] md:top-[6.5rem] flex flex-col max-w-2xl mx-auto">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {showIntro && (
-          <div className="rounded-2xl border border-primary-accent/30 bg-card p-6">
-            <h2 className="text-lg font-semibold text-mirai-text mb-2">
+          <div className="rounded-2xl border border-primary-accent/30 bg-card p-5">
+            <h2 className="text-base font-semibold text-mirai-text mb-1">
               {topicTitle}
             </h2>
             <p className="text-sm text-mirai-text-muted">
@@ -123,8 +127,8 @@ export function TopicChatClient({
               <div
                 className={
                   message.role === "user"
-                    ? "rounded-2xl bg-primary text-primary-foreground px-4 py-3 max-w-[80%] whitespace-pre-wrap"
-                    : "rounded-2xl bg-card border border-primary-accent/30 px-4 py-3 max-w-[80%] whitespace-pre-wrap"
+                    ? "rounded-2xl bg-primary text-primary-foreground px-4 py-3 max-w-[85%] whitespace-pre-wrap text-sm"
+                    : "rounded-2xl bg-card border border-primary-accent/30 px-4 py-3 max-w-[85%] whitespace-pre-wrap text-sm"
                 }
               >
                 {renderWithBillLinks(text)}
@@ -135,11 +139,12 @@ export function TopicChatClient({
         {isLoading && (
           <div className="text-sm text-mirai-text-muted">考え中…</div>
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="border-t border-primary-accent/20 bg-card px-4 py-3 flex gap-2"
+        className="shrink-0 border-t border-primary-accent/20 bg-card px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex gap-2"
       >
         <input
           value={input}

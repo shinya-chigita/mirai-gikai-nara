@@ -22,18 +22,16 @@ export default async function TopicChatPage({ params }: Props) {
     const { session, messages } = await initializeTopicSession(configId);
 
     return (
-      <div className="h-[calc(100vh-4rem)]">
-        <TopicChatClient
-          topicConfigId={configId}
-          sessionId={session.id}
-          topicTitle={config.topic_title ?? ""}
-          initialMessages={messages.map((m) => ({
-            id: m.id,
-            role: m.role,
-            content: m.content,
-          }))}
-        />
-      </div>
+      <TopicChatClient
+        topicConfigId={configId}
+        sessionId={session.id}
+        topicTitle={config.topic_title ?? ""}
+        initialMessages={messages.map((m) => ({
+          id: m.id,
+          role: m.role,
+          content: m.content,
+        }))}
+      />
     );
   } catch (error) {
     console.error("Failed to initialize topic session:", error);

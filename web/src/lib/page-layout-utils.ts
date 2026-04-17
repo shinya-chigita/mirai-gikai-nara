@@ -24,7 +24,10 @@ export function isInterviewPage(pathname: string): boolean {
 /** インタビューセクション（LP・チャット含む）かどうかを判定 */
 export function isInterviewSection(pathname: string): boolean {
   // /bills/[id]/interview 以下すべて
-  return /\/bills\/[^/]+\/interview(\/|$)/.test(pathname);
+  if (/\/bills\/[^/]+\/interview(\/|$)/.test(pathname)) return true;
+  // /topics/[configId] 以下すべて（トピック型インタビュー）
+  if (/\/topics\/[^/]+(\/|$)/.test(pathname)) return true;
+  return false;
 }
 
 /** インタビューページからbillIdを抽出 */
