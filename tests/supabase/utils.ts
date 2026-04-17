@@ -188,6 +188,43 @@ export async function createTestInterviewData(userId: string) {
   return { bill, config, session };
 }
 
+/** テスト用 topic 型 interview_config を作成 */
+export async function createTestTopicInterviewConfig(
+  overrides: Partial<{
+    name: string;
+    status: "public" | "closed";
+    topic_title: string;
+    topic_description: string;
+    knowledge_source: string;
+    themes: string[];
+    estimated_duration: number;
+  }> = {}
+) {
+  const defaults = {
+    name: `テストトピック設定 ${Date.now()}`,
+    scope_type: "topic" as const,
+    mode: "discover" as const,
+    status: "public" as const,
+    topic_title: `テストトピック ${Date.now()}`,
+    ...overrides,
+  };
+  const { data, error } = await adminClient
+    .from("interview_configs")
+    .insert(defaults)
+    .select()
+    .single();
+  if (error)
+    throw new Error(`topic interview_config 作成失敗: ${error.message}`);
+  return data;
+}
+
+/** テスト用 interview_config を削除 */
+export async function cleanupTestInterviewConfig(
+  configId: string
+): Promise<void> {
+  await adminClient.from("interview_configs").delete().eq("id", configId);
+}
+
 /** テスト用 bill_contents を作成 */
 export async function createTestBillContent(
   billId: string,
