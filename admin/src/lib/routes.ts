@@ -54,4 +54,7 @@ export const routes = {
 
   // ── トピック型インタビュー配下 ─────────────────────
   topicEdit: (configId: string) => `/topics/${configId}/edit` as const,
+  topicSessions: (configId: string) => `/topics/${configId}/sessions` as const,
+  topicSessionDetail: (configId: string, sessionId: string) =>
+    `/topics/${configId}/sessions/${sessionId}` as const,
 } as const;
