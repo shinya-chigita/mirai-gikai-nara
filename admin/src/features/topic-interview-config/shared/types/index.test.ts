@@ -5,6 +5,7 @@ describe("topicInterviewConfigSchema", () => {
   const validInput = {
     name: "県政で気になること",
     status: "closed" as const,
+    mode: "discover" as const,
     topic_title: "奈良県政で気になることを教えてください",
   };
 
@@ -74,5 +75,46 @@ describe("topicInterviewConfigSchema", () => {
       topic_description: "a".repeat(2001),
     });
     expect(result.success).toBe(false);
+  });
+
+  describe("mode フィールド", () => {
+    it("discover を許容する", () => {
+      const result = topicInterviewConfigSchema.safeParse({
+        ...validInput,
+        mode: "discover",
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.mode).toBe("discover");
+      }
+    });
+
+    it("broad_listening を許容する", () => {
+      const result = topicInterviewConfigSchema.safeParse({
+        ...validInput,
+        mode: "broad_listening",
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.mode).toBe("broad_listening");
+      }
+    });
+
+    it("topic scope では認められない loop / bulk は失敗する", () => {
+      expect(
+        topicInterviewConfigSchema.safeParse({ ...validInput, mode: "loop" })
+          .success
+      ).toBe(false);
+      expect(
+        topicInterviewConfigSchema.safeParse({ ...validInput, mode: "bulk" })
+          .success
+      ).toBe(false);
+    });
+
+    it("mode 未指定は失敗する（フォーム側で必ず初期値を入れる前提）", () => {
+      const { mode: _mode, ...withoutMode } = validInput;
+      const result = topicInterviewConfigSchema.safeParse(withoutMode);
+      expect(result.success).toBe(false);
+    });
   });
 });

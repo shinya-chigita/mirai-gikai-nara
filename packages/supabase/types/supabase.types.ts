@@ -1280,7 +1280,7 @@ export type Database = {
         | "misunderstood"
         | "too_many_questions"
         | "other"
-      interview_mode_enum: "loop" | "bulk" | "discover"
+      interview_mode_enum: "loop" | "bulk" | "discover" | "broad_listening"
       interview_report_role_enum:
         | "subject_expert"
         | "work_related"
@@ -1449,7 +1449,7 @@ export const Constants = {
         "too_many_questions",
         "other",
       ],
-      interview_mode_enum: ["loop", "bulk", "discover"],
+      interview_mode_enum: ["loop", "bulk", "discover", "broad_listening"],
       interview_report_role_enum: [
         "subject_expert",
         "work_related",

@@ -1,7 +1,9 @@
 import "server-only";
 
-import { createAdminClient } from "@mirai-gikai/supabase";
+import { createAdminClient, type Database } from "@mirai-gikai/supabase";
 import type { InterviewConfig, InterviewQuestion } from "../../shared/types";
+
+type InterviewModeEnum = Database["public"]["Enums"]["interview_mode_enum"];
 
 // bill との !inner join によって bill scope のレコードのみが返るため、bill_id は非NULLに narrow する
 export type InterviewConfigWithBill = Omit<InterviewConfig, "bill_id"> & {
@@ -118,7 +120,7 @@ export async function createInterviewConfigRecord(params: {
   bill_id: string | null;
   name: string;
   status: "public" | "closed";
-  mode: "loop" | "bulk" | "discover";
+  mode: InterviewModeEnum;
   themes: string[] | null;
   knowledge_source: string | null;
   chat_model: string | null;
@@ -146,7 +148,7 @@ export async function updateInterviewConfigRecord(
   params: {
     name: string;
     status: "public" | "closed";
-    mode: "loop" | "bulk" | "discover";
+    mode: InterviewModeEnum;
     themes: string[] | null;
     knowledge_source: string | null;
     chat_model: string | null;

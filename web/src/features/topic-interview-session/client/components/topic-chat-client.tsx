@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/lib/routes";
+import { buildInputPlaceholder } from "../utils/build-input-placeholder";
 
 interface InitialMessage {
   id: string;
@@ -14,10 +15,18 @@ interface InitialMessage {
   content: string;
 }
 
+export type TopicInterviewMode = "discover" | "broad_listening";
+
 interface TopicChatClientProps {
   topicConfigId: string;
   sessionId: string;
   topicTitle: string;
+  /**
+   * config.mode をそのまま受け取る。
+   * UI 出し分け（イントロ・placeholder）と将来的な動線分岐に使う。
+   * 想定外の値が来た場合は discover にフォールバックする。
+   */
+  mode: TopicInterviewMode;
   initialMessages: InitialMessage[];
 }
 
@@ -54,6 +63,7 @@ export function TopicChatClient({
   topicConfigId,
   sessionId,
   topicTitle,
+  mode,
   initialMessages,
 }: TopicChatClientProps) {
   const transport = useMemo(
@@ -93,6 +103,8 @@ export function TopicChatClient({
   };
 
   const showIntro = messages.length === 0;
+  const isBroadListening = mode === "broad_listening";
+  const placeholder = buildInputPlaceholder(mode, topicTitle);
 
   return (
     <div className="fixed inset-0 top-[5.5rem] md:top-[6.5rem] flex flex-col max-w-2xl mx-auto">
@@ -102,10 +114,20 @@ export function TopicChatClient({
             <h2 className="text-base font-semibold text-mirai-text mb-1">
               {topicTitle}
             </h2>
-            <p className="text-sm text-mirai-text-muted">
-              あなたの関心をもとに、AI
-              が関連する奈良県議会の議案を紹介します。まずは気になっていることを自由に入力してください。
-            </p>
+            {isBroadListening ? (
+              <p className="text-sm text-mirai-text-muted whitespace-pre-line">
+                {[
+                  "このテーマについて、感じていることを自由に入力してください。",
+                  "AIが質問しながら、あなたの意見や暮らしの実感を整理します。",
+                  "個人名・住所・学校名・勤務先・病院名などは書かないでください。",
+                ].join("\n")}
+              </p>
+            ) : (
+              <p className="text-sm text-mirai-text-muted">
+                あなたの関心をもとに、AI
+                が関連する奈良県議会の議案を紹介します。まずは気になっていることを自由に入力してください。
+              </p>
+            )}
           </div>
         )}
         {messages.map((message) => {
@@ -149,7 +171,7 @@ export function TopicChatClient({
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="気になっていることを入力…"
+          placeholder={placeholder}
           disabled={isLoading}
           className="flex-1 rounded-full border border-primary-accent/30 px-4 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
         />

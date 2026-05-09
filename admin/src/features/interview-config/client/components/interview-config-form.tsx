@@ -86,7 +86,14 @@ export function InterviewConfigForm({
     defaultValues: {
       name: config?.name || generateDefaultConfigName(),
       status: config?.status || "closed",
-      mode: config?.mode || "loop",
+      // 既存レコードの mode は supabase enum（broad_listening を含む）。
+      // bill scope フォームは loop/bulk/discover のみ扱うので、想定外値は loop にフォールバック。
+      mode:
+        config?.mode === "loop" ||
+        config?.mode === "bulk" ||
+        config?.mode === "discover"
+          ? config.mode
+          : "loop",
       themes: config?.themes || [],
       knowledge_source: config?.knowledge_source || "",
       chat_model: config?.chat_model || null,
