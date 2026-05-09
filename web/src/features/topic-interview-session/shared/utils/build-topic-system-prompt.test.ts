@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildTopicDiscoverSystemPrompt } from "./build-topic-system-prompt";
+import {
+  buildTopicBroadListeningSystemPrompt,
+  buildTopicDiscoverSystemPrompt,
+} from "./build-topic-system-prompt";
 
 const baseInput = {
   topicTitle: "奈良県政で気になること",
@@ -74,5 +77,136 @@ describe("buildTopicDiscoverSystemPrompt", () => {
   it("中立性ルールが含まれる", () => {
     const result = buildTopicDiscoverSystemPrompt(baseInput);
     expect(result).toContain("政治的に中立");
+  });
+});
+
+describe("buildTopicBroadListeningSystemPrompt", () => {
+  // broad_listening は議案カタログを持たないので billIndexSection を取らない
+  const broadBase = {
+    topicTitle: "奈良県政で気になること",
+    topicDescription: null as string | null,
+    knowledgeSource: null as string | null,
+    themes: null as string[] | null,
+  };
+
+  it("topic_title が見出し直後に含まれる", () => {
+    const result = buildTopicBroadListeningSystemPrompt(broadBase);
+    expect(result).toContain("## トピック\n奈良県政で気になること");
+  });
+
+  it("topic_description が指定されると本文に出る", () => {
+    const result = buildTopicBroadListeningSystemPrompt({
+      ...broadBase,
+      topicDescription: "このテーマについて聴かせてください",
+    });
+    expect(result).toContain("このテーマについて聴かせてください");
+  });
+
+  it("themes が指定されると重点テーマセクションが出る", () => {
+    const result = buildTopicBroadListeningSystemPrompt({
+      ...broadBase,
+      themes: ["子どもの居場所", "放課後"],
+    });
+    expect(result).toContain("## 重点テーマ");
+    expect(result).toContain("- 子どもの居場所");
+    expect(result).toContain("- 放課後");
+  });
+
+  it("knowledgeSource が指定されると補足知識セクションが出る", () => {
+    const result = buildTopicBroadListeningSystemPrompt({
+      ...broadBase,
+      knowledgeSource: "対象は県内在住・在勤・在学者",
+    });
+    expect(result).toContain("## 補足知識");
+    expect(result).toContain("対象は県内在住・在勤・在学者");
+  });
+
+  it("最初の発言を設定テーマへの回答として扱う指示が含まれる", () => {
+    const result = buildTopicBroadListeningSystemPrompt(broadBase);
+    expect(result).toContain(
+      "ユーザーの最初の発言は、すでに上記テーマへの回答として扱ってください"
+    );
+  });
+
+  it("入口に戻る質問をしないよう明示している", () => {
+    const result = buildTopicBroadListeningSystemPrompt(broadBase);
+    expect(result).toContain("何に興味がありますか");
+    expect(result).toContain("入口に戻る質問はしないでください");
+  });
+
+  it("具体場面を聞くフローが含まれる", () => {
+    const result = buildTopicBroadListeningSystemPrompt(broadBase);
+    expect(result).toContain("具体場面");
+    expect(result).toContain("どんな場面を見たり聞いたりした時ですか");
+  });
+
+  it("個人特定情報の聞き出し禁止が含まれる", () => {
+    const result = buildTopicBroadListeningSystemPrompt(broadBase);
+    expect(result).toContain("個人が特定される情報");
+  });
+
+  it("匿名要約のまとめ返しフォーマットが含まれる", () => {
+    const result = buildTopicBroadListeningSystemPrompt(broadBase);
+    expect(result).toContain("このまとめ方で大きな違和感はありませんか");
+  });
+
+  it("1質問・短文方針が含まれる", () => {
+    const result = buildTopicBroadListeningSystemPrompt(broadBase);
+    expect(result).toContain("1回の返答では原則1つだけ質問");
+    expect(result).toContain("200〜250文字");
+  });
+
+  it("関連議案紹介が主目的でない旨が示される", () => {
+    const result = buildTopicBroadListeningSystemPrompt(broadBase);
+    expect(result).toContain("関連議案の紹介は主目的ではありません");
+  });
+
+  it("議案カタログセクション自体は含まない", () => {
+    const result = buildTopicBroadListeningSystemPrompt(broadBase);
+    expect(result).not.toContain("## 議案カタログ");
+    expect(result).not.toContain("[議案ID:");
+  });
+
+  // テーマ固有語ハードコード混入チェック。
+  // 意図: 任意の topic config に対して、無関係な他テーマ固有語が
+  // プロンプト本文に混入していないことを保証する。
+  it.each([
+    ["鹿テーマ", "奈良県の鹿対策についての考えを聞かせてください"],
+    ["交通テーマ", "奈良県の交通・移動についての考えを聞かせてください"],
+    ["子育てテーマ", "奈良県の子育て・教育についての考えを聞かせてください"],
+  ])("%s で生成しても、他テーマ固有語（鹿せんべい/観光客/通院/通勤）が混入しない", (_label, topicTitle) => {
+    const result = buildTopicBroadListeningSystemPrompt({
+      topicTitle,
+      topicDescription: null,
+      knowledgeSource: null,
+      themes: null,
+    });
+
+    // topic に含まれない他テーマ固有語が混入していないこと
+    const otherTopicSpecificTerms = [
+      "鹿せんべい",
+      "観光客",
+      "通院",
+      "通勤",
+      "保育",
+      "鹿対策",
+    ];
+    for (const term of otherTopicSpecificTerms) {
+      if (topicTitle.includes(term)) continue; // 自分のtopicに含まれる語はスキップ
+      expect(
+        result.includes(term),
+        `"${term}" は ${topicTitle} のプロンプトに含まれてはならない`
+      ).toBe(false);
+    }
+  });
+
+  it("topic config に含まれる語は反映される（themes 経由）", () => {
+    const result = buildTopicBroadListeningSystemPrompt({
+      topicTitle: "テーマA",
+      topicDescription: null,
+      knowledgeSource: null,
+      themes: ["放課後の居場所"],
+    });
+    expect(result).toContain("放課後の居場所");
   });
 });

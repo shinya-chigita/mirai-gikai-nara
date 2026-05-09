@@ -26,6 +26,9 @@ export default async function TopicChatPage({ params }: Props) {
         topicConfigId={configId}
         sessionId={session.id}
         topicTitle={config.topic_title ?? ""}
+        mode={
+          config.mode === "broad_listening" ? "broad_listening" : "discover"
+        }
         initialMessages={messages.map((m) => ({
           id: m.id,
           role: m.role,

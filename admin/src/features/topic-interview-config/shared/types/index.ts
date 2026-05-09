@@ -6,6 +6,14 @@ export type TopicInterviewConfigRow =
   Database["public"]["Tables"]["interview_configs"]["Row"];
 
 /**
+ * topic scope で利用可能なインタビューモード。
+ * - discover: 関心からの議案逆引き（従来）
+ * - broad_listening: 設定テーマを丁寧に聴く傾聴モード（声プロジェクト用）
+ */
+export const TOPIC_INTERVIEW_MODES = ["discover", "broad_listening"] as const;
+export type TopicInterviewMode = (typeof TOPIC_INTERVIEW_MODES)[number];
+
+/**
  * トピック型インタビュー設定のバリデーションスキーマ。
  * scope_type='topic' の interview_configs レコードを作成・更新するための入力型。
  */
@@ -15,6 +23,7 @@ export const topicInterviewConfigSchema = z.object({
     .min(1, "設定名は必須です")
     .max(100, "設定名は100文字以内で入力してください"),
   status: z.enum(["public", "closed"]),
+  mode: z.enum(TOPIC_INTERVIEW_MODES),
   topic_title: z
     .string()
     .min(1, "トピックタイトルは必須です")

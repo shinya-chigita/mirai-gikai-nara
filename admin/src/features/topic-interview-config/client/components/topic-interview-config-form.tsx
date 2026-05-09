@@ -18,7 +18,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -39,6 +38,16 @@ import {
   topicInterviewConfigSchema,
 } from "../../shared/types";
 
+/**
+ * 既存レコードの mode 値が topic scope で許可される範囲外だった場合の
+ * フォーム初期値フォールバック。現状 topic scope では discover / broad_listening のみ扱う。
+ */
+function normalizeFormMode(
+  raw: TopicInterviewConfigRow["mode"] | null | undefined
+): "discover" | "broad_listening" {
+  return raw === "broad_listening" ? "broad_listening" : "discover";
+}
+
 interface TopicInterviewConfigFormProps {
   config: TopicInterviewConfigRow | null;
 }
@@ -55,6 +64,7 @@ export function TopicInterviewConfigForm({
     defaultValues: {
       name: config?.name || "新しいトピック設定",
       status: config?.status || "closed",
+      mode: normalizeFormMode(config?.mode),
       topic_title: config?.topic_title || "",
       topic_description: config?.topic_description || "",
       themes: config?.themes || [],
@@ -248,12 +258,36 @@ export function TopicInterviewConfigForm({
               )}
             />
 
-            <div>
-              <Label>モード</Label>
-              <p className="text-sm text-gray-600 mt-1">
-                トピック型は常に「discover（関心逆引き）」で固定されます
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="mode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>モード</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="discover">
+                        discover（関心からの議案逆引き）
+                      </SelectItem>
+                      <SelectItem value="broad_listening">
+                        broad_listening（テーマを丁寧に聴く）
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    discover: ユーザーの関心から関連議案を紹介する従来モード /
+                    broad_listening:
+                    設定テーマについて意見・実感・困りごとを聴く傾聴モード
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
 

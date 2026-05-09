@@ -19,7 +19,10 @@ import { ChatError, ChatErrorCode } from "@/features/chat/shared/types/errors";
 import { createInterviewMessage } from "@/features/interview-session/server/repositories/interview-session-repository";
 import { AI_MODELS } from "@/lib/ai/models";
 import { env } from "@/lib/env";
-import { buildTopicDiscoverSystemPrompt } from "../../shared/utils/build-topic-system-prompt";
+import {
+  buildTopicBroadListeningSystemPrompt,
+  buildTopicDiscoverSystemPrompt,
+} from "../../shared/utils/build-topic-system-prompt";
 import { formatBillIndexForPrompt } from "../../shared/utils/format-bill-index";
 import { getPublicTopicConfigById } from "../loaders/get-public-topic-config";
 
@@ -50,12 +53,8 @@ export async function handleTopicChatRequest({
   await checkSystemDailyCostLimit();
   await checkSystemMonthlyCostLimit();
 
-  // トピック設定と議案カタログを並列取得
-  const [topicConfig, bills] = await Promise.all([
-    getPublicTopicConfigById(topicConfigId),
-    getBills(),
-  ]);
-
+  // mode により議案カタログ取得の要否が分かれるため、まず topicConfig を取得する
+  const topicConfig = await getPublicTopicConfigById(topicConfigId);
   if (!topicConfig) {
     throw new ChatError(
       ChatErrorCode.LLM_GENERATION_FAILED,
@@ -63,23 +62,33 @@ export async function handleTopicChatRequest({
     );
   }
 
-  // システムプロンプト構築
-  const billIndexSection = formatBillIndexForPrompt(
-    bills.map((b) => ({
-      id: b.id,
-      name: b.name,
-      summary: b.bill_content?.summary ?? null,
-      tags: b.tags,
-    }))
-  );
+  const isBroadListening = topicConfig.mode === "broad_listening";
 
-  const systemPrompt = buildTopicDiscoverSystemPrompt({
-    topicTitle: topicConfig.topic_title ?? "",
-    topicDescription: topicConfig.topic_description,
-    knowledgeSource: topicConfig.knowledge_source,
-    themes: topicConfig.themes,
-    billIndexSection,
-  });
+  // discover モードのみ議案カタログを取得（broad_listening では不要）
+  const bills = isBroadListening ? [] : await getBills();
+
+  // システムプロンプト構築（mode により分岐）
+  const systemPrompt = isBroadListening
+    ? buildTopicBroadListeningSystemPrompt({
+        topicTitle: topicConfig.topic_title ?? "",
+        topicDescription: topicConfig.topic_description,
+        knowledgeSource: topicConfig.knowledge_source,
+        themes: topicConfig.themes,
+      })
+    : buildTopicDiscoverSystemPrompt({
+        topicTitle: topicConfig.topic_title ?? "",
+        topicDescription: topicConfig.topic_description,
+        knowledgeSource: topicConfig.knowledge_source,
+        themes: topicConfig.themes,
+        billIndexSection: formatBillIndexForPrompt(
+          bills.map((b) => ({
+            id: b.id,
+            name: b.name,
+            summary: b.bill_content?.summary ?? null,
+            tags: b.tags,
+          }))
+        ),
+      });
 
   // 直近のユーザーメッセージを保存（履歴差分で最新分のみ記録）
   const lastMessage = messages[messages.length - 1];
@@ -104,6 +113,9 @@ export async function handleTopicChatRequest({
   const model = deps?.model ?? AI_MODELS.gpt4o;
   const modelName =
     typeof model === "string" ? model : (model.modelId ?? "unknown");
+  const promptName = isBroadListening
+    ? "topic-broad-listening-system"
+    : "topic-discover-system";
 
   try {
     const result = streamText({
@@ -125,12 +137,13 @@ export async function handleTopicChatRequest({
           await recordChatUsage({
             userId,
             sessionId,
-            promptName: "topic-discover-system",
+            promptName,
             model: modelName,
             usage: event.totalUsage,
             costUsd: undefined,
             metadata: {
               topicConfigId,
+              mode: topicConfig.mode,
               billsIncluded: bills.length,
             },
           });

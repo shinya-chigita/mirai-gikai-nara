@@ -45,7 +45,7 @@ export async function createTopicInterviewConfig(
         bill_id: null,
         name: validated.name,
         status: validated.status,
-        mode: "discover",
+        mode: validated.mode,
         topic_title: validated.topic_title,
         topic_description: emptyToNull(validated.topic_description),
         themes:
@@ -96,6 +96,7 @@ export async function updateTopicInterviewConfig(
       .update({
         name: validated.name,
         status: validated.status,
+        mode: validated.mode,
         topic_title: validated.topic_title,
         topic_description: emptyToNull(validated.topic_description),
         themes:
