@@ -57,4 +57,8 @@ export const routes = {
   topicSessions: (configId: string) => `/topics/${configId}/sessions` as const,
   topicSessionDetail: (configId: string, sessionId: string) =>
     `/topics/${configId}/sessions/${sessionId}` as const,
+
+  // 会話ログ閲覧（分析前のRaw Log Viewer）
+  topicConversations: (configId: string) =>
+    `/topics/${configId}/conversations` as const,
 } as const;
