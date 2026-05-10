@@ -18,7 +18,9 @@ export function MainLayout({ children }: MainLayoutProps) {
   return (
     <div
       className={cn(
-        "relative max-w-[700px] mx-auto md:mt-24",
+        // モバイルでも固定ヘッダー (top-4 + h-16 = 5rem) と本文が被らないよう mt-28 で逃がす。
+        // md 以上は従来通り。
+        "relative max-w-[700px] mx-auto mt-28 md:mt-24",
         // インタビューページ以外ではshadowを表示
         !isInterview && "sm:shadow-lg",
         // TOPページと法案詳細ページのみ、チャットサイドバー用のオフセット
