@@ -86,9 +86,11 @@ export function TopicInterviewConfigList({ configs }: Props) {
                         </Link>
                       </Button>
                       <Button asChild variant="ghost" size="sm">
-                        <Link href={routes.topicSessions(config.id) as Route}>
+                        <Link
+                          href={routes.topicConversations(config.id) as Route}
+                        >
                           <MessageCircle className="h-4 w-4 mr-1" />
-                          ログ
+                          会話ログ
                         </Link>
                       </Button>
                     </div>
