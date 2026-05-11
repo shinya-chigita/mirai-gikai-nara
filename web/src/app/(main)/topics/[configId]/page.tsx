@@ -21,7 +21,7 @@ export default async function TopicLandingPage({ params }: Props) {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
-      <h1 className="text-2xl font-bold text-mirai-text mb-4">
+      <h1 className="text-2xl leading-tight font-bold text-mirai-text mb-4">
         {config.topic_title}
       </h1>
       {config.topic_description && (
