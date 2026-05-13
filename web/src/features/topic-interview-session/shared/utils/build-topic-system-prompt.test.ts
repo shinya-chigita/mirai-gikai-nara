@@ -152,7 +152,7 @@ describe("buildTopicBroadListeningSystemPrompt", () => {
 
   it("1質問・短文方針が含まれる", () => {
     const result = buildTopicBroadListeningSystemPrompt(broadBase);
-    expect(result).toContain("1回の返答では原則1つだけ質問");
+    expect(result).toContain("1回の返答に質問は必ず1つだけ");
     expect(result).toContain("200〜250文字");
   });
 
@@ -208,5 +208,47 @@ describe("buildTopicBroadListeningSystemPrompt", () => {
       themes: ["放課後の居場所"],
     });
     expect(result).toContain("放課後の居場所");
+  });
+
+  describe("AI が他ユーザーの声を捏造しないガード", () => {
+    it("『他の方の意見』を引用しないことを明示する禁止文がある", () => {
+      const result = buildTopicBroadListeningSystemPrompt(broadBase);
+      expect(result).toContain("他の方の意見としては");
+      expect(result).toContain(
+        "実際には集計していない他ユーザーの声を要約・代弁・引用"
+      );
+    });
+
+    it("『みなさん』『多くの方は』といった集計表現の禁止が含まれる", () => {
+      const result = buildTopicBroadListeningSystemPrompt(broadBase);
+      expect(result).toContain("みなさん");
+      expect(result).toContain("根拠のない集計表現");
+    });
+
+    it("『知らないことは知らない』と返すルールが含まれる", () => {
+      const result = buildTopicBroadListeningSystemPrompt(broadBase);
+      expect(result).toContain("## 知らないことは知らないと言うルール");
+      expect(result).toContain("補足知識セクションに記載がある事実のみ");
+      expect(result).toContain("この場ではお答えできません");
+    });
+  });
+
+  describe("1ターンあたり1質問の徹底", () => {
+    it("『1メッセージで疑問符は最大1個』が明記される", () => {
+      const result = buildTopicBroadListeningSystemPrompt(broadBase);
+      expect(result).toContain("疑問符（？・?）の数は1メッセージで最大1個");
+    });
+
+    it("疑問符2つ以上の禁止が禁止リストに含まれる", () => {
+      const result = buildTopicBroadListeningSystemPrompt(broadBase);
+      expect(result).toContain("疑問符（？・?）を 2 つ以上使うこと");
+    });
+  });
+
+  describe("同じ注意文の連続抑制", () => {
+    it("『直近3ターン以内に既に伝えていれば繰り返さない』が含まれる", () => {
+      const result = buildTopicBroadListeningSystemPrompt(broadBase);
+      expect(result).toContain("直近3ターン以内に既に伝えている");
+    });
   });
 });
