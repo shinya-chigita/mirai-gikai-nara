@@ -91,6 +91,7 @@ export async function handleTopicChatRequest({
         topicDescription: topicConfig.topic_description,
         knowledgeSource: topicConfig.knowledge_source,
         themes: topicConfig.themes,
+        referenceInfo: topicConfig.reference_info,
       })
     : buildTopicDiscoverSystemPrompt({
         topicTitle: topicConfig.topic_title ?? "",

@@ -518,6 +518,7 @@ export type Database = {
           knowledge_source: string | null
           mode: Database["public"]["Enums"]["interview_mode_enum"]
           name: string
+          reference_info: string | null
           scope_type: Database["public"]["Enums"]["interview_scope_enum"]
           status: Database["public"]["Enums"]["interview_config_status_enum"]
           themes: string[] | null
@@ -534,6 +535,7 @@ export type Database = {
           knowledge_source?: string | null
           mode?: Database["public"]["Enums"]["interview_mode_enum"]
           name: string
+          reference_info?: string | null
           scope_type?: Database["public"]["Enums"]["interview_scope_enum"]
           status?: Database["public"]["Enums"]["interview_config_status_enum"]
           themes?: string[] | null
@@ -550,6 +552,7 @@ export type Database = {
           knowledge_source?: string | null
           mode?: Database["public"]["Enums"]["interview_mode_enum"]
           name?: string
+          reference_info?: string | null
           scope_type?: Database["public"]["Enums"]["interview_scope_enum"]
           status?: Database["public"]["Enums"]["interview_config_status_enum"]
           themes?: string[] | null

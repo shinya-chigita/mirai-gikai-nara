@@ -87,6 +87,7 @@ describe("buildTopicBroadListeningSystemPrompt", () => {
     topicDescription: null as string | null,
     knowledgeSource: null as string | null,
     themes: null as string[] | null,
+    referenceInfo: null as string | null,
   };
 
   it("topic_title が見出し直後に含まれる", () => {
@@ -180,6 +181,7 @@ describe("buildTopicBroadListeningSystemPrompt", () => {
       topicDescription: null,
       knowledgeSource: null,
       themes: null,
+      referenceInfo: null,
     });
 
     // topic に含まれない他テーマ固有語が混入していないこと
@@ -206,8 +208,55 @@ describe("buildTopicBroadListeningSystemPrompt", () => {
       topicDescription: null,
       knowledgeSource: null,
       themes: ["放課後の居場所"],
+      referenceInfo: null,
     });
     expect(result).toContain("放課後の居場所");
+  });
+
+  describe("参考情報セクション", () => {
+    it("referenceInfo が null のときは参考情報セクションが出ない", () => {
+      const result = buildTopicBroadListeningSystemPrompt(broadBase);
+      expect(result).not.toContain("## 参考情報");
+    });
+
+    it("referenceInfo が空白だけのときも参考情報セクションは出ない", () => {
+      const result = buildTopicBroadListeningSystemPrompt({
+        ...broadBase,
+        referenceInfo: "   \n  ",
+      });
+      expect(result).not.toContain("## 参考情報");
+    });
+
+    it("referenceInfo が指定されると参考情報セクションが出る", () => {
+      const result = buildTopicBroadListeningSystemPrompt({
+        ...broadBase,
+        referenceInfo:
+          "山下知事の任期: 2023-04 から / 主な施策: 教育の無償化 (2023-09 開始)",
+      });
+      expect(result).toContain(
+        "## 参考情報（ユーザーから明示的に事実を尋ねられたときだけ短く引用してよい）"
+      );
+      expect(result).toContain("山下知事の任期: 2023-04 から");
+      expect(result).toContain("教育の無償化 (2023-09 開始)");
+    });
+
+    it("referenceInfo は前後空白がトリムされる", () => {
+      const result = buildTopicBroadListeningSystemPrompt({
+        ...broadBase,
+        referenceInfo: "\n\n  主な施策: A  \n\n",
+      });
+      expect(result).toContain("\n主な施策: A\n");
+    });
+
+    it("参考情報があっても、記載がない事項は推測しないルールが含まれる", () => {
+      const result = buildTopicBroadListeningSystemPrompt({
+        ...broadBase,
+        referenceInfo: "X 施策の概要のみ",
+      });
+      expect(result).toContain(
+        "両セクションに記載が無いことは「この場ではお答えできません」"
+      );
+    });
   });
 
   describe("AI が他ユーザーの声を捏造しないガード", () => {
@@ -228,7 +277,10 @@ describe("buildTopicBroadListeningSystemPrompt", () => {
     it("『知らないことは知らない』と返すルールが含まれる", () => {
       const result = buildTopicBroadListeningSystemPrompt(broadBase);
       expect(result).toContain("## 知らないことは知らないと言うルール");
-      expect(result).toContain("補足知識セクションに記載がある事実のみ");
+      // 「補足知識」または「参考情報」セクションに記載があるものに限定
+      expect(result).toContain(
+        "「補足知識」または「参考情報」セクションに記載がある事実のみ"
+      );
       expect(result).toContain("この場ではお答えできません");
     });
   });

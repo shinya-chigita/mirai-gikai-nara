@@ -77,6 +77,37 @@ describe("topicInterviewConfigSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  describe("reference_info フィールド", () => {
+    it("未指定でも検証は通る", () => {
+      const result = topicInterviewConfigSchema.safeParse(validInput);
+      expect(result.success).toBe(true);
+    });
+
+    it("空文字も許容（DB 側で null に寄せる前提）", () => {
+      const result = topicInterviewConfigSchema.safeParse({
+        ...validInput,
+        reference_info: "",
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("5000 文字以内なら許容", () => {
+      const result = topicInterviewConfigSchema.safeParse({
+        ...validInput,
+        reference_info: "a".repeat(5000),
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("5001 文字以上は失敗", () => {
+      const result = topicInterviewConfigSchema.safeParse({
+        ...validInput,
+        reference_info: "a".repeat(5001),
+      });
+      expect(result.success).toBe(false);
+    });
+  });
+
   describe("mode フィールド", () => {
     it("discover を許容する", () => {
       const result = topicInterviewConfigSchema.safeParse({

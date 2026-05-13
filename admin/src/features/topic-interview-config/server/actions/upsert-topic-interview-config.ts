@@ -53,6 +53,7 @@ export async function createTopicInterviewConfig(
             ? validated.themes
             : null,
         knowledge_source: emptyToNull(validated.knowledge_source),
+        reference_info: emptyToNull(validated.reference_info),
         chat_model: validated.chat_model ?? null,
         estimated_duration: validated.estimated_duration ?? null,
       })
@@ -104,6 +105,7 @@ export async function updateTopicInterviewConfig(
             ? validated.themes
             : null,
         knowledge_source: emptyToNull(validated.knowledge_source),
+        reference_info: emptyToNull(validated.reference_info),
         chat_model: validated.chat_model ?? null,
         estimated_duration: validated.estimated_duration ?? null,
         updated_at: new Date().toISOString(),
