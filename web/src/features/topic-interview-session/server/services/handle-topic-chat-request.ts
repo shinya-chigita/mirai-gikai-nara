@@ -16,7 +16,11 @@ import {
   checkSystemMonthlyCostLimit,
 } from "@/features/chat/server/services/system-cost-guard";
 import { ChatError, ChatErrorCode } from "@/features/chat/shared/types/errors";
-import { createInterviewMessage } from "@/features/interview-session/server/repositories/interview-session-repository";
+import {
+  createInterviewMessage,
+  createInterviewSessionRecord,
+  findActiveInterviewSession,
+} from "@/features/interview-session/server/repositories/interview-session-repository";
 import { AI_MODELS } from "@/lib/ai/models";
 import { env } from "@/lib/env";
 import {
@@ -30,7 +34,12 @@ type HandleTopicChatRequestParams = {
   messages: UIMessage[];
   userId: string;
   topicConfigId: string;
-  sessionId: string;
+  /**
+   * クライアントから渡された sessionId。
+   * 未指定 (空セッション抑制のため初回送信前は null) の場合、本関数内で
+   * 既存アクティブセッションを検索し、無ければ新規作成する。
+   */
+  sessionId: string | null;
   deps?: { model?: LanguageModel };
 };
 
@@ -63,6 +72,14 @@ export async function handleTopicChatRequest({
   }
 
   const isBroadListening = topicConfig.mode === "broad_listening";
+
+  // セッション解決: クライアントから受け取った id が無ければ、ユーザー＋設定で
+  // アクティブセッションを find-or-create する（空セッション抑制のための遅延作成）。
+  const resolvedSessionId = await resolveSessionId({
+    sessionId,
+    userId,
+    interviewConfigId: topicConfigId,
+  });
 
   // discover モードのみ議案カタログを取得（broad_listening では不要）
   const bills = isBroadListening ? [] : await getBills();
@@ -100,7 +117,7 @@ export async function handleTopicChatRequest({
     if (text.trim()) {
       try {
         await createInterviewMessage({
-          sessionId,
+          sessionId: resolvedSessionId,
           role: "user",
           content: text,
         });
@@ -125,7 +142,7 @@ export async function handleTopicChatRequest({
       onFinish: async (event) => {
         try {
           await createInterviewMessage({
-            sessionId,
+            sessionId: resolvedSessionId,
             role: "assistant",
             content: event.text,
           });
@@ -136,7 +153,7 @@ export async function handleTopicChatRequest({
         try {
           await recordChatUsage({
             userId,
-            sessionId,
+            sessionId: resolvedSessionId,
             promptName,
             model: modelName,
             usage: event.totalUsage,
@@ -161,4 +178,32 @@ export async function handleTopicChatRequest({
       error instanceof Error ? error.message : String(error)
     );
   }
+}
+
+/**
+ * セッション解決ロジック。
+ * - 明示的に sessionId が渡された場合はそれをそのまま使う（呼び出し側で所有者チェック済み想定）
+ * - 渡されなかった場合、(userId, configId) のアクティブセッションを find-or-create
+ *
+ * これにより、トピックページ閲覧だけで session 行が無駄に作られなくなり、
+ * 「初回ユーザー発言が来てから session を作る」運用に移行できる。
+ */
+async function resolveSessionId(params: {
+  sessionId: string | null;
+  userId: string;
+  interviewConfigId: string;
+}): Promise<string> {
+  if (params.sessionId) return params.sessionId;
+
+  const existing = await findActiveInterviewSession(
+    params.interviewConfigId,
+    params.userId
+  );
+  if (existing) return existing.id;
+
+  const created = await createInterviewSessionRecord({
+    interviewConfigId: params.interviewConfigId,
+    userId: params.userId,
+  });
+  return created.id;
 }
