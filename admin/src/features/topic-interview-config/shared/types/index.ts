@@ -34,6 +34,10 @@ export const topicInterviewConfigSchema = z.object({
     .optional(),
   themes: z.array(z.string().min(1)).optional(),
   knowledge_source: z.string().optional(),
+  reference_info: z
+    .string()
+    .max(5000, "参考情報は5000文字以内で入力してください")
+    .optional(),
   chat_model: z
     .string()
     .nullable()

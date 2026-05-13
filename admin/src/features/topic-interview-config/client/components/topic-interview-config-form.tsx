@@ -69,6 +69,7 @@ export function TopicInterviewConfigForm({
       topic_description: config?.topic_description || "",
       themes: config?.themes || [],
       knowledge_source: config?.knowledge_source || "",
+      reference_info: config?.reference_info || "",
       chat_model: config?.chat_model || null,
       estimated_duration: isNew ? 10 : (config?.estimated_duration ?? null),
     },
@@ -193,6 +194,34 @@ export function TopicInterviewConfigForm({
                       placeholder="LLM の回答で参照させたい背景情報や注意事項を Markdown で記述"
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="reference_info"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    参考情報（任意・broad_listening モード向け）
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      rows={6}
+                      placeholder={[
+                        "ユーザーが事実情報を求めたときに AI が淡白に引用する内容を Markdown で記述。",
+                        "例: 知事の主な施策、開始時期、補助金の概要、関連リンク など。",
+                        "ここに書かれていない事項は AI が「この場ではお答えできません」と返す運用です。",
+                      ].join("\n")}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    discover モードでは使用されません。broad_listening
+                    モードでのみシステムプロンプトに差し込まれます。
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

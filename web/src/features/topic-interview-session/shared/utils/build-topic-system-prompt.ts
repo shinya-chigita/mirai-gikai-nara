@@ -73,12 +73,17 @@ ${billIndexSection}
 /**
  * broad_listening モード用システムプロンプトの入力。
  * discover とは異なり議案カタログは含めない（議案紹介は主目的ではない）。
+ *
+ * referenceInfo: ユーザーから明示的に事実情報を求められた際に AI が短く引用するための
+ * 事前設定テキスト（Markdown 自由記述）。未設定なら null。AI は記載がない事項を
+ * 推測で答えず「この場ではお答えできません」と返す運用。
  */
 export type TopicBroadListeningPromptInput = {
   topicTitle: string;
   topicDescription: string | null;
   knowledgeSource: string | null;
   themes: string[] | null;
+  referenceInfo: string | null;
 };
 
 /**
@@ -94,7 +99,13 @@ export type TopicBroadListeningPromptInput = {
 export function buildTopicBroadListeningSystemPrompt(
   input: TopicBroadListeningPromptInput
 ): string {
-  const { topicTitle, topicDescription, knowledgeSource, themes } = input;
+  const {
+    topicTitle,
+    topicDescription,
+    knowledgeSource,
+    themes,
+    referenceInfo,
+  } = input;
 
   const descriptionPart = topicDescription?.trim()
     ? `\n${topicDescription.trim()}\n`
@@ -109,13 +120,19 @@ export function buildTopicBroadListeningSystemPrompt(
     ? `## 補足知識\n${knowledgeSource.trim()}\n\n`
     : "";
 
+  // referenceInfo は「ユーザーから明示的に事実を尋ねられた場合だけ短く引用する」用途。
+  // 中立性を保つため、ここに書かれていない事項を AI が推測で補わないルールとセットで運用する。
+  const referencePart = referenceInfo?.trim()
+    ? `## 参考情報（ユーザーから明示的に事実を尋ねられたときだけ短く引用してよい）\n${referenceInfo.trim()}\n\n`
+    : "";
+
   return `あなたは「奈良の声を聴くプロジェクト」の中立的な対話インタビュアーです。
 目的は、上記テーマについて、奈良で暮らす人・働く人・学ぶ人の生活実感や意見を丁寧に聴き、後で整理しやすい形にすることです。
 
 ## トピック
 ${topicTitle}${descriptionPart}
 
-${themesPart}${knowledgePart}## 大前提
+${themesPart}${knowledgePart}${referencePart}## 大前提
 - ユーザーの最初の発言は、すでに上記テーマへの回答として扱ってください。
 - 「何に興味がありますか？」「どの分野に関心がありますか？」「もっと知りたい分野は何ですか？」と入口に戻る質問はしないでください。
 - 関連議案の紹介は主目的ではありません。ユーザーが明確に求めた場合のみ、一般的な参考情報として扱ってください。
@@ -133,7 +150,8 @@ ${themesPart}${knowledgePart}## 大前提
 ## 知らないことは知らないと言うルール（最重要）
 - このAIはユーザーの声を整理する役割であり、政策・実績・統計・他ユーザーの声の集計データは持っていません。
 - 「他のユーザーはこう答えています」「みなさん〜と感じています」など、他の回答者の声を要約・代弁・引用しないでください。たとえ参考目的の依頼であってもです。
-- 知事や行政の具体的な施策内容、開始時期、効果、統計数値などをユーザーから尋ねられた場合、推測や創作で答えず、補足知識セクションに記載がある事実のみを引用してください。記載が無いことは「この場ではお答えできません」と素直に伝え、深追いせず、もとの傾聴フローに静かに戻ってください。
+- 知事や行政の具体的な施策内容、開始時期、効果、統計数値などをユーザーから尋ねられた場合、推測や創作で答えず、上記「補足知識」または「参考情報」セクションに記載がある事実のみを短く引用してください。両セクションに記載が無いことは「この場ではお答えできません」と素直に伝え、深追いせず、もとの傾聴フローに静かに戻ってください。
+- 「参考情報」セクションが本プロンプト中に存在しない、または該当する事実が含まれていない場合は、推測で補完しないでください。
 - ユーザーが「他の人の意見を教えて」と求めたときも、創作した集約を返してはいけません。「他の方の声は集計してお伝えできる仕組みではないので、〇〇さんご自身の感じていることを教えてください」と返してください。
 
 ## 返答スタイル
