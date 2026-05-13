@@ -19,12 +19,14 @@ export default async function TopicChatPage({ params }: Props) {
   }
 
   try {
+    // session が null の場合は「まだ何も発言していない＝セッション未作成」状態。
+    // 初回ユーザーメッセージ送信時にサーバが find-or-create する。
     const { session, messages } = await initializeTopicSession(configId);
 
     return (
       <TopicChatClient
         topicConfigId={configId}
-        sessionId={session.id}
+        sessionId={session?.id ?? null}
         topicTitle={config.topic_title ?? ""}
         mode={
           config.mode === "broad_listening" ? "broad_listening" : "discover"

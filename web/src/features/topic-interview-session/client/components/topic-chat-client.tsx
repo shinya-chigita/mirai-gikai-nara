@@ -2,11 +2,13 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Send } from "lucide-react";
+import { Check, CheckCircle2, Loader2, Send } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/lib/routes";
+import { completeTopicSession } from "../../server/actions/complete-topic-session";
 import { buildInputPlaceholder } from "../utils/build-input-placeholder";
 
 interface InitialMessage {
@@ -19,7 +21,11 @@ export type TopicInterviewMode = "discover" | "broad_listening";
 
 interface TopicChatClientProps {
   topicConfigId: string;
-  sessionId: string;
+  /**
+   * 既存のアクティブセッションがあればその id、なければ null。
+   * null の場合は初回ユーザーメッセージが届いた時点でサーバ側が遅延作成する。
+   */
+  sessionId: string | null;
   topicTitle: string;
   /**
    * config.mode をそのまま受け取る。
@@ -66,6 +72,7 @@ export function TopicChatClient({
   mode,
   initialMessages,
 }: TopicChatClientProps) {
+  const router = useRouter();
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
@@ -85,6 +92,9 @@ export function TopicChatClient({
   });
 
   const [input, setInput] = useState("");
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [completeError, setCompleteError] = useState<string | null>(null);
+  const [isCompleting, startCompleteTransition] = useTransition();
   const isLoading = status === "streaming" || status === "submitted";
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -96,11 +106,33 @@ export function TopicChatClient({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isCompleted) return;
     const text = input.trim();
     if (!text || isLoading) return;
     sendMessage({ text });
     setInput("");
   };
+
+  const handleComplete = () => {
+    if (isCompleting || isLoading) return;
+    setCompleteError(null);
+    startCompleteTransition(async () => {
+      const result = await completeTopicSession(topicConfigId);
+      if (result.success) {
+        setIsCompleted(true);
+        // 完了表示を見せた後 1.5 秒でトピックLPに戻す
+        setTimeout(
+          () => router.push(routes.topicInterview(topicConfigId)),
+          1500
+        );
+      } else {
+        setCompleteError(result.error);
+      }
+    });
+  };
+
+  // 「終わる」ボタンは1メッセージ以上やり取りがあった段階で有効化
+  const canComplete = messages.length > 0 && !isCompleted && !isLoading;
 
   const showIntro = messages.length === 0;
   const isBroadListening = mode === "broad_listening";
@@ -161,23 +193,57 @@ export function TopicChatClient({
         {isLoading && (
           <div className="text-sm text-mirai-text-muted">考え中…</div>
         )}
+        {isCompleted && (
+          <div className="flex items-center justify-center gap-2 rounded-2xl border border-primary-accent/30 bg-card p-4 text-sm text-mirai-text">
+            <CheckCircle2 className="h-4 w-4 text-primary" />
+            会話を終了しました。ありがとうございました。
+          </div>
+        )}
+        {completeError && !isCompleted && (
+          <div className="text-xs text-destructive">
+            終了処理に失敗しました: {completeError}
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="shrink-0 border-t border-primary-accent/20 bg-card px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex gap-2"
+        className="shrink-0 border-t border-primary-accent/20 bg-card px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
       >
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={placeholder}
-          disabled={isLoading}
-          className="flex-1 rounded-full border border-primary-accent/30 px-4 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-        />
-        <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
-          <Send className="h-4 w-4" />
-        </Button>
+        <div className="flex gap-2">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={placeholder}
+            disabled={isLoading || isCompleted}
+            className="flex-1 rounded-full border border-primary-accent/30 px-4 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <Button
+            type="submit"
+            size="icon"
+            disabled={isLoading || isCompleted || !input.trim()}
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="mt-2 flex justify-end">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleComplete}
+            disabled={!canComplete || isCompleting}
+            className="text-xs text-mirai-text-muted"
+          >
+            {isCompleting ? (
+              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+            ) : (
+              <Check className="h-3 w-3 mr-1" />
+            )}
+            会話を終える
+          </Button>
+        </div>
       </form>
     </div>
   );
