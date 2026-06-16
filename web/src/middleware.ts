@@ -22,6 +22,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // ヘルスチェック（UptimeRobot等の外部監視）は常に認証を素通りさせる
+  if (request.nextUrl.pathname === "/api/health") {
+    return NextResponse.next();
+  }
+
   // Supabaseセッションをリフレッシュ（トークン期限切れ時に自動更新）
   const response = await updateSupabaseSession(request);
 
